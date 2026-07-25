@@ -1,0 +1,8 @@
+# Private redline terms for sanitize_check.py -- NEVER commit.
+# The scanner loads operator-specific secret terms (usernames, hosts,
+# internal system names) from this file so the public scanner code
+# doesn't itself leak them.
+tools/redlines.local.txt
+
+__pycache__/
+*.pyc

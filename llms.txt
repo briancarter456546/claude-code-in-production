@@ -1,0 +1,23 @@
+# Claude Code in Production
+
+> Real postmortems, Architecture Decision Records, and enforcement-hook patterns from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, ~100 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
+
+## Postmortems
+
+- [Silent one-year data misalignment invalidated months of backtests](postmortems/001-silent-data-misalignment-broke-every-backtest.md): off-by-252-trading-days column index bug; plausible-looking wrong results; fixed by a mandatory matrix/date alignment contract enforced by a PreToolUse hook (which later blocked this very document).
+- [12 concurrent AI agents locked us out of our own server](postmortems/002-concurrent-ai-agents-ssh-rate-limit-lockout.md): per-hook SSH connections x 12 sessions tripped firewall rate limiting, 8-hour lockout; fixed with a local HTTP relay over one persistent ControlMaster connection, hardened four times since.
+- [Stopping an AI agent from telling you what you want to hear](postmortems/003-stop-hook-sycophancy-guard-claude-code.md): sycophantic position-flips under operator pushback; fixed with a Stop hook blocking appeasement language + a named-evidence protocol for position changes + input reframing.
+
+## Templates
+
+- [Postmortem template](postmortems/TEMPLATE.md): includes the "has the guard fired since" field — evidence the fix works.
+- [ADR template](adr/TEMPLATE.md): supersession chains preserved as the evolution record.
+- [Pattern template](patterns/TEMPLATE.md): every pattern must state its own failure modes.
+
+## Tools
+
+- [sanitize_check.py](tools/sanitize_check.py): pre-publish scanner for secrets, private paths, IPs, and operator-defined redline terms; this repo runs it on itself before every push.
+
+## Optional
+
+- [License](LICENSE.md): prose CC-BY-4.0, code MIT. Author: Brian Carter / IronFrame.
