@@ -24,6 +24,7 @@ The core finding, repeated across every incident here: **instructions decay, enf
 | [001](postmortems/001-silent-data-misalignment-broke-every-backtest.md) | Silent one-year data misalignment | An off-by-252-trading-days index bug made every backtest read prices from a year before their labeled dates — results looked plausible for months. Fixed with a mandatory data-alignment contract, not vigilance. |
 | [002](postmortems/002-concurrent-ai-agents-ssh-rate-limit-lockout.md) | 12 concurrent agents vs. SSH rate limiting | Every hook in every session opened its own SSH connection. The firewall did its job; we lost server access for 8 hours. Fixed with a local HTTP relay over one persistent connection. |
 | [003](postmortems/003-stop-hook-sycophancy-guard-claude-code.md) | The agent kept telling us we were right | Sycophancy is an accuracy bug: an agent that flips position under pushback corrupts every decision built on it. Fixed with a Stop hook that blocks appeasement language and a named-evidence protocol for position changes. |
+| [004](postmortems/004-per-session-git-wrapper-nearly-committed-private-repo-into-public.md) | The safety wrapper almost leaked the private repo | A per-session git wrapper resolved `GIT_INDEX_FILE` from the working directory but ignored the command's `-C` flag — so operations on a nested public repo staged into the private parent's index, 23k files deep. Fixed by forwarding the repo-locating options into the wrapper's own resolution. |
 
 ## The numbers behind this repo
 

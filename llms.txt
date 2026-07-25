@@ -7,6 +7,7 @@
 - [Silent one-year data misalignment invalidated months of backtests](postmortems/001-silent-data-misalignment-broke-every-backtest.md): off-by-252-trading-days column index bug; plausible-looking wrong results; fixed by a mandatory matrix/date alignment contract enforced by a PreToolUse hook (which later blocked this very document).
 - [12 concurrent AI agents locked us out of our own server](postmortems/002-concurrent-ai-agents-ssh-rate-limit-lockout.md): per-hook SSH connections x 12 sessions tripped firewall rate limiting, 8-hour lockout; fixed with a local HTTP relay over one persistent ControlMaster connection, hardened four times since.
 - [Stopping an AI agent from telling you what you want to hear](postmortems/003-stop-hook-sycophancy-guard-claude-code.md): sycophantic position-flips under operator pushback; fixed with a Stop hook blocking appeasement language + a named-evidence protocol for position changes + input reframing.
+- [The reliability wrapper almost committed the private repo into the public one](postmortems/004-per-session-git-wrapper-nearly-committed-private-repo-into-public.md): a per-session GIT_INDEX_FILE wrapper resolved the repo from CWD and ignored `-C`, so nested-repo operations staged the private parent's 23k-file index; caught by an impossible file count, fixed by forwarding repo-locating options into the wrapper's own resolution.
 
 ## Templates
 
