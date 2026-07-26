@@ -1,6 +1,6 @@
 # ADR-007: Session state is a structured status block — the model renders it, a hook persists it
 
-**Status:** Active · **Date:** 2026-06, revised (see [ADR-012](012-context-percentage-wrap-pressure.md)) · **Internal refs:** session-status persist hook
+**Status:** Active · **Date:** 2026-06, revised (see [ADR-012](012-context-percentage-wrap-pressure-not-turn-counts.md)) · **Internal refs:** session-status persist hook
 
 ## Context
 

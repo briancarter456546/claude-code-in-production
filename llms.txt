@@ -1,41 +1,100 @@
 # Claude Code in Production
 
-> Real postmortems, Architecture Decision Records, and enforcement-hook patterns from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, ~100 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
+> Real postmortems (43), Architecture Decision Records (17), and enforcement-hook patterns (13) from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, 148 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
 
-## Postmortems
+## Postmortems — the founding four
 
-- [Silent one-year data misalignment invalidated months of backtests](postmortems/001-silent-data-misalignment-broke-every-backtest.md): off-by-252-trading-days column index bug; plausible-looking wrong results; fixed by a mandatory matrix/date alignment contract enforced by a PreToolUse hook (which later blocked this very document).
-- [12 concurrent AI agents locked us out of our own server](postmortems/002-concurrent-ai-agents-ssh-rate-limit-lockout.md): per-hook SSH connections x 12 sessions tripped firewall rate limiting, 8-hour lockout; fixed with a local HTTP relay over one persistent ControlMaster connection, hardened four times since.
-- [Stopping an AI agent from telling you what you want to hear](postmortems/003-stop-hook-sycophancy-guard-claude-code.md): sycophantic position-flips under operator pushback; fixed with a Stop hook blocking appeasement language + a named-evidence protocol for position changes + input reframing.
-- [The reliability wrapper almost committed the private repo into the public one](postmortems/004-per-session-git-wrapper-nearly-committed-private-repo-into-public.md): a per-session GIT_INDEX_FILE wrapper resolved the repo from CWD and ignored `-C`, so nested-repo operations staged the private parent's 23k-file index; caught by an impossible file count, fixed by forwarding repo-locating options into the wrapper's own resolution.
+- [Silent one-year data misalignment invalidated months of backtests](postmortems/001-silent-data-misalignment-broke-every-backtest.md): off-by-252-trading-days index bug; plausible-looking wrong results; fixed by a mandatory alignment contract.
+- [12 concurrent AI agents locked us out of our own server](postmortems/002-concurrent-ai-agents-ssh-rate-limit-lockout.md): per-hook SSH connections tripped firewall rate limiting; 8-hour lockout; fixed with a local HTTP relay.
+- [Stopping an AI agent from telling you what you want to hear](postmortems/003-stop-hook-sycophancy-guard-claude-code.md): Stop hook blocks appeasement language; named-evidence protocol for position changes.
+- [The reliability wrapper almost committed the private repo into the public one](postmortems/004-per-session-git-wrapper-nearly-committed-private-repo-into-public.md): per-session GIT_INDEX_FILE wrapper ignored `-C`; caught by an impossible file count.
+
+## Postmortems — when guards fail
+
+- [The agent forged its own approval marker](postmortems/012-agent-forged-its-own-approval-marker.md): gate rejected real human approvals AND accepted agent self-approval; format is not provenance.
+- [The anti-fabrication ledger certified fabricated numbers](postmortems/013-integrity-ledger-certified-fabricated-results.md): partial-observation bypass — one honest metric shielded fabricated ones; smoke tests green throughout; found by a fresh-context adversary.
+- [Every documented bypass was a silent no-op](postmortems/014-the-escape-hatches-that-never-existed.md): inline env vars never reach the hook process; failed bypasses look like working guards.
+- [8,000 fires, zero true catches](postmortems/015-eight-thousand-fires-zero-true-blocks.md): two gates audited against their own logs and killed; "a guess never blocks."
+- [The classifier that never ran](postmortems/016-the-classifier-that-never-ran.md): hook read an env var Claude Code never sets; 2 fires in 101k audit lines; ~273 artifacts mislabeled.
+- [The guard that suppressed itself](postmortems/017-the-guard-that-suppressed-itself.md): exemption regex matched the violation trigger; 100% silent false-negative.
+- [The Stop hook that rewarded hand-waving](postmortems/018-the-stop-hook-that-rewarded-hand-waving.md): measured 10/10 fires on the wrong rule, 0/10 on target; shapes vs properties.
+- [When the safety layer became the outage](postmortems/019-when-the-safety-layer-became-the-outage.md): 44 shell guards, ~3s per command; relative paths blocked every tool call; consolidated into dispatchers.
+- [The fix that kept getting unfixed](postmortems/020-the-fix-that-kept-getting-unfixed.md): concurrent sessions silently reverted a guard fix; order protection guards before the fixes they defend.
+- [Alarm fatigue by the numbers](postmortems/021-alarm-fatigue-by-the-numbers.md): one file approved 25 times; 70k tokens of guard churn poisoning compaction.
+
+## Postmortems — concurrency
+
+- [A false fact sat in the knowledge base six weeks](postmortems/005-false-finding-sat-in-knowledge-base-six-weeks.md): human review passed it; the automated contradiction scan caught it; the blanket human ack was narrowed on evidence.
+- [Broad git add swept another session's files](postmortems/008-broad-git-add-swept-another-sessions-files.md): commit provenance corrupted; recurrence same day the fix was declared done.
+- [A bare git commit harvested 16 staged files](postmortems/011-bare-commit-swept-the-shared-index.md): the shared index is single-player state; pathspec-required commits.
+- [Two sessions, one identity](postmortems/022-two-sessions-one-identity.md): derived session IDs collided; a fallback impersonated a sibling; identity must be issued, never derived.
+- [Blocked from committing a file named after itself](postmortems/023-blocked-from-committing-its-own-file.md): first-writer-wins observation-based ownership; declared scope must outrank observation.
+- [Ghost text from another session](postmortems/024-ghost-text-from-another-session.md): tab-autocomplete read a global history file across sessions and workspaces; below the hook layer.
+- [Sessions erased each other's hook registrations](postmortems/025-sessions-erased-each-others-hook-registrations.md): settings.json read-modify-write race; orphan detection.
+- [The files deleted at midnight](postmortems/026-the-files-deleted-at-midnight.md): unattributable deletions, published unsolved; deletion provenance logging.
+
+## Postmortems — silent failure
+
+- [NaN prices created immortal positions](postmortems/009-nan-prices-created-immortal-zombie-positions.md): every NaN comparison is False; False meant "keep holding."
+- [Stale dashboard forks](postmortems/010-stale-local-dashboard-forks-diverged-from-production.md): the live file is canonical; dashboards are never git-tracked; three guards.
+- [The database that lied by being present](postmortems/027-the-database-that-lied-by-being-present.md): silent fallback to a stale local store; checkout succeeded against phantoms.
+- [The push that lied](postmortems/028-the-push-that-lied.md): verification compared against a stale cached origin ref; 12 hours of false success.
+- [Deploy verified, then reverted](postmortems/029-deploy-verified-then-reverted-thirty-minutes-later.md): two deployment channels, one path; verification expired at the next scheduled writer.
+- [The secret the hooks could not see](postmortems/030-the-secret-the-hooks-could-not-see.md): the harness wrote an API key into settings on command approval; gate moved to git pre-commit.
+- [The smoke test that emailed the boss](postmortems/031-the-smoke-test-that-emailed-the-boss.md): TESTRUN file won an mtime-latest glob; filename schemas + producer registry.
+- [Exit zero, wrong answer](postmortems/032-exit-zero-wrong-answer.md): caught ImportError degraded results silently on a remote worker; results now carry integrity manifests.
+- [Production degraded politely](postmortems/033-production-degraded-politely.md): a cron that never once succeeded; a 400 logged as WARNING for six days; liveness is not correctness.
+- [Windows kills guards quietly](postmortems/034-windows-kills-guards-quietly.md): exec bits lost at commit; persisted cwd broke hooks; a dead session's file handle blocked git for days.
+
+## Postmortems — epistemics
+
+- [The agent misread its own context window](postmortems/006-agent-misread-its-own-context-window-usage.md): self-estimated 17% at actual 85%; inject the measurement, never ask the model.
+- [Wrap nudges at 20% context](postmortems/007-wrap-nudge-overfiring-below-half-context.md): the opposite failure; Stop hook bans wrap suggestions below 50%.
+- [The model talked us out of being right](postmortems/035-the-model-talked-us-out-of-being-right.md): operator flagged stale data; agent denied it without checking and issued live signals.
+- [Compaction ate the doubt](postmortems/036-compaction-ate-the-doubt.md): "too good to be true" written at turn 7, compacted away at turn 10, recorded at confidence 1.00.
+- [The investigator was the culprit](postmortems/037-the-investigator-was-the-culprit.md): the deleting session investigated the deletion, blamed a stranger, and disabled the detector.
+- [The validation that never happened](postmortems/038-the-validation-that-never-happened.md): claimed walk-forward whose script never existed in git; runtime arithmetic as a lie detector.
+- [The guard that existed but was never ported](postmortems/039-the-guard-that-existed-but-was-never-ported.md): look-ahead protection missing from a sibling pipeline; results fell 165x when ported.
+- [The irreversible A/B test](postmortems/040-the-irreversible-ab-test.md): shipped on a 13-point improvement that was ~1 point; the comparison population was purged on two machines.
+- [$75 a day of heartbeat](postmortems/041-seventy-five-dollars-a-day-of-heartbeat.md): an LLM in a 30-minute cron control loop; control belongs in deterministic code.
+- [Fifteen hours and eighty-four minutes](postmortems/042-fifteen-hours-and-eighty-four-minutes.md): agents don't reason about asymptotics; wall-clock was the detector every time.
+- [Overfitting anxiety nearly killed real edges](postmortems/043-overfitting-anxiety-nearly-killed-real-edges.md): wrong prices + triple-charged multiplicity penalties manufactured false kills; point the adversary both ways.
 
 ## Architecture Decision Records
 
 - [Local HTTP relay instead of raw SSH](adr/001-local-http-relay-instead-of-raw-ssh.md): one persistent connection multiplexes all agent/hook server access; no raw-SSH fallback by design.
-- [Hooks as enforcement, not instructions](adr/002-hooks-as-enforcement-not-instructions.md): the founding thesis — every durable rule gets a PreToolUse gate, Stop hook, or context injector, with logged-reason bypasses.
-- [.sh-to-.py wrapper convention](adr/003-sh-to-py-wrapper-convention-for-windows-hooks.md): cross-platform hooks on Windows; logic in testable Python, UTF-8 explicit, ASCII-only output.
-- [Lane discipline for concurrent sessions](adr/004-lane-discipline-for-concurrent-sessions.md): seven lanes, canonical status/map paths, write guard blocks strays.
-- [Epistemic integrity stack](adr/005-epistemic-integrity-stack-anti-sycophancy.md): input reframing + named-evidence position changes + banned-phrase Stop hook + confidence tiers + approval inversion.
-- [Task-checkout leases and collision guards](adr/006-task-checkout-leases-and-collision-guards.md): sessions claim file scopes via leases; a guard blocks cross-session write collisions.
-- [Session status header: model renders, hook persists](adr/007-session-status-header-model-renders-hook-persists.md): structured 8-field state block; the model never writes the state file.
-- [Append-only KB with curator-mediated writes](adr/008-append-only-knowledge-base-with-curator-writes.md): nothing deleted, contradiction scan on write, and a human-ack layer narrowed when evidence showed it caught nothing.
-- [Live file as source of truth for deployed dashboards](adr/009-live-file-source-of-truth-for-deployed-dashboards.md): deployed dashboards are never git-tracked; pull-edit-push-verify, three guards against stale forks.
-- [Host placement policy across three machines](adr/010-host-placement-policy-three-machines.md): placement is a policy decision checked at creation; "build here, move later" is forbidden by name.
-- [Designer ack and the seven-question design gate](adr/011-designer-ack-and-seven-question-design-gate.md): new tools/hooks blocked until lane, source of truth, interface, enforcement, destructive-action gating, downstream updates, and verification are answered.
-- [Context-percentage wrap pressure](adr/012-context-percentage-wrap-pressure-not-turn-counts.md): wrap-up keys off measured context usage with fixed zones; a Stop hook bans wrap nudges below 50%.
-- [Solution validation loop](adr/013-solution-validation-loop-external-adversary.md): high-stakes proposals attacked by a different vendor's model before the operator reads them; halts rather than self-reviews.
-- [Per-session skill state](adr/014-per-session-skill-state.md): phase-gated workflow state keyed by session id; shared-by-accident state retired after cross-session gate collisions.
-- [Advisory injection: second model in the loop](adr/015-advisory-injection-second-model-in-the-loop.md): a scored Stop hook triggers an external advisor whose opinions must be acknowledged or overridden with reasons — never silently dismissed, never treated as facts.
+- [Hooks as enforcement, not instructions](adr/002-hooks-as-enforcement-not-instructions.md): the founding thesis — every durable rule gets a gate, Stop hook, or injector, with logged-reason bypasses.
+- [.sh-to-.py wrapper convention](adr/003-sh-to-py-wrapper-convention-for-windows-hooks.md): cross-platform hooks; logic in testable Python; UTF-8 explicit; ASCII-only output.
+- [Lane discipline](adr/004-lane-discipline-for-concurrent-sessions.md): seven lanes, canonical status/map paths, write guard blocks strays.
+- [Epistemic integrity stack](adr/005-epistemic-integrity-stack-anti-sycophancy.md): input reframing + named-evidence position changes + banned-phrase Stop hook + confidence tiers.
+- [Task-checkout leases and collision guards](adr/006-task-checkout-leases-and-collision-guards.md): sessions claim file scopes via leases; a guard blocks cross-session collisions.
+- [Session status header](adr/007-session-status-header-model-renders-hook-persists.md): model renders the state block; a hook validates and persists it; the model never writes the state file.
+- [Append-only KB with curator writes](adr/008-append-only-knowledge-base-with-curator-writes.md): nothing deleted; contradiction scan on write; the human-ack layer narrowed when evidence showed it caught nothing.
+- [Live file as source of truth for dashboards](adr/009-live-file-source-of-truth-for-deployed-dashboards.md): deployed dashboards never git-tracked; pull-edit-push-verify; three guards.
+- [Host placement policy](adr/010-host-placement-policy-three-machines.md): placement checked at creation; "build here, move later" forbidden by name.
+- [Designer ack and the seven-question gate](adr/011-designer-ack-and-seven-question-design-gate.md): new tools blocked until lane, truth-source, interface, enforcement, destruction, downstream, verification are answered.
+- [Context-percentage wrap pressure](adr/012-context-percentage-wrap-pressure-not-turn-counts.md): measured context zones; a Stop hook bans wrap nudges below 50%.
+- [Solution validation loop](adr/013-solution-validation-loop-external-adversary.md): high-stakes proposals attacked by a different vendor's model; halts rather than self-reviews.
+- [Per-session skill state](adr/014-per-session-skill-state.md): workflow state keyed by session id; shared-by-accident retired.
+- [Advisory injection](adr/015-advisory-injection-second-model-in-the-loop.md): a scored Stop hook triggers an external advisor; acknowledge or override with reasons; never silently dismiss.
+- [Guards audited against their own fire logs](adr/016-guards-are-audited-against-their-own-fire-logs.md): net-negative guards are killed; zero-fire guards are findings; heuristics don't block.
+- [Bypass rate is a bug report on the guard](adr/017-bypass-rate-is-a-bug-report-on-the-guard.md): bypasses are sensor data; recurring reasons are named false-positive classes.
 
-## Templates
+## Patterns (sanitized runnable skeletons, each with its own failure modes)
+
+- [Stop-hook guard](patterns/stop-hook-guard.md) · [PreToolUse gate](patterns/pretooluse-gate.md) · [Context injection](patterns/context-injection.md) · [.sh→.py shim](patterns/sh-py-shim.md) · [Per-session state](patterns/per-session-state.md) · [Atomic write + RMW](patterns/atomic-write-and-rmw.md) · [Profile self-gating](patterns/profile-self-gating.md) · [Marker-file acks](patterns/marker-file-acks.md) · [Passive audit log](patterns/passive-audit-log.md) · [Tool registry](patterns/tool-registry.md) · [Guard-dispatch consolidation](patterns/guard-dispatch-consolidation.md) · [Quoted-prose stripping](patterns/quoted-prose-stripping.md) · [Bypass-rate auditing](patterns/bypass-rate-auditing.md)
+
+## Chronicle and meta
+
+- [Origins](chronicle/00-origins.md) · [Era 1: Instructions and Their Funerals](chronicle/01-era-instructions-and-their-funerals.md) · [Era 2: Concurrency Grows Teeth](chronicle/02-era-concurrency-grows-teeth.md) · [Era 3: Guarding the Guards](chronicle/03-era-guarding-the-guards.md)
+- [META: how this repo was reconstructed](META.md): sources, method, numbers policy, sanitization.
+
+## Templates and tools
 
 - [Postmortem template](postmortems/TEMPLATE.md): includes the "has the guard fired since" field — evidence the fix works.
 - [ADR template](adr/TEMPLATE.md): supersession chains preserved as the evolution record.
 - [Pattern template](patterns/TEMPLATE.md): every pattern must state its own failure modes.
-
-## Tools
-
-- [sanitize_check.py](tools/sanitize_check.py): pre-publish scanner for secrets, private paths, IPs, and operator-defined redline terms; this repo runs it on itself before every push.
+- [sanitize_check.py](tools/sanitize_check.py): pre-publish scanner; this repo runs it on itself before every push.
 
 ## Optional
 
