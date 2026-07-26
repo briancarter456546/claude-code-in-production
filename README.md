@@ -26,6 +26,36 @@ The core finding, repeated across every incident here: **instructions decay, enf
 | [003](postmortems/003-stop-hook-sycophancy-guard-claude-code.md) | The agent kept telling us we were right | Sycophancy is an accuracy bug: an agent that flips position under pushback corrupts every decision built on it. Fixed with a Stop hook that blocks appeasement language and a named-evidence protocol for position changes. |
 | [004](postmortems/004-per-session-git-wrapper-nearly-committed-private-repo-into-public.md) | The safety wrapper almost leaked the private repo | A per-session git wrapper resolved `GIT_INDEX_FILE` from the working directory but ignored the command's `-C` flag — so operations on a nested public repo staged into the private parent's index, 23k files deep. Fixed by forwarding the repo-locating options into the wrapper's own resolution. |
 
+## The decision record: 15 ADRs
+
+The postmortems are the incidents; the ADRs are the load-bearing choices the incidents forced. Superseded ADRs are never deleted — the supersession chain is the evolution story.
+
+| ADR | Decision |
+|-----|----------|
+| [001](adr/001-local-http-relay-instead-of-raw-ssh.md) | A local HTTP relay replaces all raw SSH from agents and hooks |
+| [002](adr/002-hooks-as-enforcement-not-instructions.md) | Rules are enforced by hooks, not written as instructions — the repo's founding thesis |
+| [003](adr/003-sh-to-py-wrapper-convention-for-windows-hooks.md) | Hooks are thin `.sh` shims that exec matching `.py` implementations |
+| [004](adr/004-lane-discipline-for-concurrent-sessions.md) | Work is partitioned into lanes with canonical paths, enforced by a write guard |
+| [005](adr/005-epistemic-integrity-stack-anti-sycophancy.md) | Anti-sycophancy is a layered stack, not an instruction |
+| [006](adr/006-task-checkout-leases-and-collision-guards.md) | Concurrent sessions coordinate through task-checkout leases and a collision guard |
+| [007](adr/007-session-status-header-model-renders-hook-persists.md) | Session state is a structured status block — the model renders it, a hook persists it |
+| [008](adr/008-append-only-knowledge-base-with-curator-writes.md) | The knowledge base is append-only; all writes route through a curator agent |
+| [009](adr/009-live-file-source-of-truth-for-deployed-dashboards.md) | For deployed dashboards, the live file on the server is the source of truth |
+| [010](adr/010-host-placement-policy-three-machines.md) | New automation must pass a host-placement policy — "build here, move later" is forbidden |
+| [011](adr/011-designer-ack-and-seven-question-design-gate.md) | Creating a new tool or hook requires answering seven design questions, enforced by an ack gate |
+| [012](adr/012-context-percentage-wrap-pressure-not-turn-counts.md) | Session wrap-up pressure keys off measured context usage, not time or turn counts |
+| [013](adr/013-solution-validation-loop-external-adversary.md) | High-stakes proposals are adversarially attacked by an external model before the operator sees them |
+| [014](adr/014-per-session-skill-state.md) | Phase-gated workflow state is per-session, keyed by session id — never shared |
+| [015](adr/015-advisory-injection-second-model-in-the-loop.md) | A second model's advisory opinions are injected into the loop — as opinions, never as facts |
+
+## Era timeline (v1)
+
+Five months of decisions cluster into three recognizable eras. Dates are month-precision, reconstructed from the private repo's history.
+
+- **Era 1 — Instructions and their funerals (Mar–Apr 2026).** A handful of sessions, rules written into the instructions file, and the first expensive discoveries that instructions decay: the SSH-flood lockout ([PM-002](postmortems/002-concurrent-ai-agents-ssh-rate-limit-lockout.md)) and the silent data misalignment ([PM-001](postmortems/001-silent-data-misalignment-broke-every-backtest.md)). The relay ([ADR-001](adr/001-local-http-relay-instead-of-raw-ssh.md)) and the first PreToolUse guards date here; so does the founding thesis ([ADR-002](adr/002-hooks-as-enforcement-not-instructions.md)).
+- **Era 2 — Concurrency grows teeth (May–Jun 2026).** Session count climbs toward 7–12 and every shared-state assumption breaks in sequence: lanes ([ADR-004](adr/004-lane-discipline-for-concurrent-sessions.md)), checkout leases ([ADR-006](adr/006-task-checkout-leases-and-collision-guards.md)), the session status header ([ADR-007](adr/007-session-status-header-model-renders-hook-persists.md)), curator-mediated KB writes ([ADR-008](adr/008-append-only-knowledge-base-with-curator-writes.md)), host placement policy ([ADR-010](adr/010-host-placement-policy-three-machines.md)). The epistemic stack ([ADR-005](adr/005-epistemic-integrity-stack-anti-sycophancy.md)) hardens after sycophantic flips hit real decisions.
+- **Era 3 — Guarding the guards (Jul 2026).** The enforcement layer is now itself load-bearing infrastructure, with its own failure modes: a safety wrapper nearly leaks this very repo ([PM-004](postmortems/004-per-session-git-wrapper-nearly-committed-private-repo-into-public.md)), design debt gets a gate ([ADR-011](adr/011-designer-ack-and-seven-question-design-gate.md)), wrap pressure moves to measured context ([ADR-012](adr/012-context-percentage-wrap-pressure-not-turn-counts.md)), shared skill state goes per-session ([ADR-014](adr/014-per-session-skill-state.md)), and second-model oversight arrives ([ADR-013](adr/013-solution-validation-loop-external-adversary.md), [ADR-015](adr/015-advisory-injection-second-model-in-the-loop.md)). This repo is Era 3 behavior: the system documenting its own failure record.
+
 ## The numbers behind this repo
 
 - **1,258 commits** in the private working repo between 2026-02-28 and 2026-07-25

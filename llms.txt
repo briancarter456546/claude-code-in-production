@@ -9,6 +9,24 @@
 - [Stopping an AI agent from telling you what you want to hear](postmortems/003-stop-hook-sycophancy-guard-claude-code.md): sycophantic position-flips under operator pushback; fixed with a Stop hook blocking appeasement language + a named-evidence protocol for position changes + input reframing.
 - [The reliability wrapper almost committed the private repo into the public one](postmortems/004-per-session-git-wrapper-nearly-committed-private-repo-into-public.md): a per-session GIT_INDEX_FILE wrapper resolved the repo from CWD and ignored `-C`, so nested-repo operations staged the private parent's 23k-file index; caught by an impossible file count, fixed by forwarding repo-locating options into the wrapper's own resolution.
 
+## Architecture Decision Records
+
+- [Local HTTP relay instead of raw SSH](adr/001-local-http-relay-instead-of-raw-ssh.md): one persistent connection multiplexes all agent/hook server access; no raw-SSH fallback by design.
+- [Hooks as enforcement, not instructions](adr/002-hooks-as-enforcement-not-instructions.md): the founding thesis — every durable rule gets a PreToolUse gate, Stop hook, or context injector, with logged-reason bypasses.
+- [.sh-to-.py wrapper convention](adr/003-sh-to-py-wrapper-convention-for-windows-hooks.md): cross-platform hooks on Windows; logic in testable Python, UTF-8 explicit, ASCII-only output.
+- [Lane discipline for concurrent sessions](adr/004-lane-discipline-for-concurrent-sessions.md): seven lanes, canonical status/map paths, write guard blocks strays.
+- [Epistemic integrity stack](adr/005-epistemic-integrity-stack-anti-sycophancy.md): input reframing + named-evidence position changes + banned-phrase Stop hook + confidence tiers + approval inversion.
+- [Task-checkout leases and collision guards](adr/006-task-checkout-leases-and-collision-guards.md): sessions claim file scopes via leases; a guard blocks cross-session write collisions.
+- [Session status header: model renders, hook persists](adr/007-session-status-header-model-renders-hook-persists.md): structured 8-field state block; the model never writes the state file.
+- [Append-only KB with curator-mediated writes](adr/008-append-only-knowledge-base-with-curator-writes.md): nothing deleted, contradiction scan on write, and a human-ack layer narrowed when evidence showed it caught nothing.
+- [Live file as source of truth for deployed dashboards](adr/009-live-file-source-of-truth-for-deployed-dashboards.md): deployed dashboards are never git-tracked; pull-edit-push-verify, three guards against stale forks.
+- [Host placement policy across three machines](adr/010-host-placement-policy-three-machines.md): placement is a policy decision checked at creation; "build here, move later" is forbidden by name.
+- [Designer ack and the seven-question design gate](adr/011-designer-ack-and-seven-question-design-gate.md): new tools/hooks blocked until lane, source of truth, interface, enforcement, destructive-action gating, downstream updates, and verification are answered.
+- [Context-percentage wrap pressure](adr/012-context-percentage-wrap-pressure-not-turn-counts.md): wrap-up keys off measured context usage with fixed zones; a Stop hook bans wrap nudges below 50%.
+- [Solution validation loop](adr/013-solution-validation-loop-external-adversary.md): high-stakes proposals attacked by a different vendor's model before the operator reads them; halts rather than self-reviews.
+- [Per-session skill state](adr/014-per-session-skill-state.md): phase-gated workflow state keyed by session id; shared-by-accident state retired after cross-session gate collisions.
+- [Advisory injection: second model in the loop](adr/015-advisory-injection-second-model-in-the-loop.md): a scored Stop hook triggers an external advisor whose opinions must be acknowledged or overridden with reasons — never silently dismissed, never treated as facts.
+
 ## Templates
 
 - [Postmortem template](postmortems/TEMPLATE.md): includes the "has the guard fired since" field — evidence the fix works.
