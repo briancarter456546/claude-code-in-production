@@ -12,6 +12,7 @@ The core finding, repeated across every incident here: **instructions decay, enf
 
 ## Start here
 
+- The 5-minute version: **[ASSUMPTIONS.md](ASSUMPTIONS.md)** — 103 things you'd assume the agent can do, one sentence each, every line linked to the incident that killed it.
 - New to the repo: [chronicle/00-origins.md](chronicle/00-origins.md) → the three era files → any postmortem that hooks you.
 - Here to steal mechanisms: [`patterns/`](patterns/) — sanitized, runnable hook skeletons, each with its own failure modes documented.
 - Skeptical of the whole thing: [META.md](META.md) — how this was reconstructed, the numbers policy, and what's deliberately not here.

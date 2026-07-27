@@ -2,6 +2,10 @@
 
 > Real postmortems (43), Architecture Decision Records (17), and enforcement-hook patterns (13) from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, 148 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
 
+## Start here
+
+- [103 things you'd assume an AI coding agent can do](ASSUMPTIONS.md): one sentence per failed assumption, each linked to the postmortem or ADR documenting its failure — the whole repo as a checklist.
+
 ## Postmortems — the founding four
 
 - [Silent one-year data misalignment invalidated months of backtests](postmortems/001-silent-data-misalignment-broke-every-backtest.md): off-by-252-trading-days index bug; plausible-looking wrong results; fixed by a mandatory alignment contract.
