@@ -1,6 +1,6 @@
 # Pattern: Context Injection — Push State Into Every Turn Instead of Hoping the Model Asks
 
-**Problem:** The agent needs current operational state — active leases, known corrections, session status, collision taxonomies — but models don't reliably *ask* for state, and instructions to "always check X first" decay. Stale beliefs masquerade as knowledge.
+**Problem:** The agent needs current operational state — active leases, known corrections, session status, collision taxonomies — but models don't reliably *ask* for state, and instructions to "always check X first" decay. This isn't hypothetical: our subagent prompts carried a "MANDATORY FIRST READ" instruction pointing at a context file, and under tool-use pressure agents were observed skipping it — while, separately, the prompt files carrying that instruction were silently reverted by concurrent sessions. Both failure paths are why the injector hook exists: hook-level injection is the invariant that prompt-level instruction wasn't. Stale beliefs masquerade as knowledge.
 
 **Mechanism:** UserPromptSubmit (and SessionStart) hooks emit text that the harness injects into the turn's context. The model doesn't have to remember to look; the state arrives with every prompt. Injection can be unconditional (session status), keyword-triggered (collision symptoms → taxonomy), or one-time (session-start rules banner).
 

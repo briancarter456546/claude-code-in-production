@@ -15,7 +15,7 @@ Every line carries a link, but the links come in two evidence classes, and the d
 7. Telling the agent to estimate runtime before executing means it will actually do the arithmetic. *([PM-042](postmortems/042-fifteen-hours-and-eighty-four-minutes.md))*
 8. A rule with an obvious reason behind it doesn't need enforcement. *(thesis: [ADR-002](adr/002-hooks-as-enforcement-not-instructions.md))*
 9. If the agent acknowledges a correction, the behavior is corrected. *(thesis: [ADR-002](adr/002-hooks-as-enforcement-not-instructions.md))*
-10. Instructions compete fairly for attention no matter how long the session gets. *([PM-036](postmortems/036-compaction-ate-the-doubt.md))*
+10. Instructions compete fairly for attention no matter how long the session gets. *([PM-021](postmortems/021-alarm-fatigue-by-the-numbers.md), [PM-035](postmortems/035-the-model-talked-us-out-of-being-right.md))*
 
 ## Memory, context, and long sessions
 
