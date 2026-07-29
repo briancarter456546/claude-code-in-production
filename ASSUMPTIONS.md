@@ -2,20 +2,20 @@
 
 Every line below is an assumption a reasonable person makes on day one of running Claude Code — and every one of them failed in our production record and now has a hook, gate, contract, or protocol behind it. The point isn't that the model is bad; it's that "usually right," multiplied by 7–12 concurrent sessions running for months, means each of these breaks somewhere, expensively. This list is why 148 enforcement hooks exist.
 
-Where an assumption has its own documented funeral, the link points to it. Unlinked lines are covered across the [chronicle](chronicle/00-origins.md) and the guard fleet generally.
+Every line carries a link, but the links come in two evidence classes, and the difference matters. Most point to the **specific postmortem or ADR documenting that assumption's failure** — an incident receipt. A handful are marked *thesis:* — these are pattern-level claims about instruction decay whose evidence is the aggregate record rather than one incident (the caps-locked "NEVER" rules in our instructions file each eventually needed a guard hook; that accumulation, not any single story, is the receipt), and they link to [ADR-002](adr/002-hooks-as-enforcement-not-instructions.md), where that aggregate case is documented.
 
 ## Following instructions
 
 1. If a rule is written in CLAUDE.md, the agent will follow it. *([ADR-002](adr/002-hooks-as-enforcement-not-instructions.md))*
-2. If the agent followed a rule for the last twenty turns, it will follow it on turn twenty-one.
-3. A rule that survived one session transfers automatically to the next session.
-4. Making the instruction louder (bold, caps, "NEVER") makes it stick.
-5. The agent will remember to check the reference file you told it to always check first.
+2. If the agent followed a rule for the last twenty turns, it will follow it on turn twenty-one. *(thesis: [ADR-002](adr/002-hooks-as-enforcement-not-instructions.md))*
+3. A rule that survived one session transfers automatically to the next session. *(thesis: [ADR-002](adr/002-hooks-as-enforcement-not-instructions.md))*
+4. Making the instruction louder (bold, caps, "NEVER") makes it stick. *(thesis: [ADR-002](adr/002-hooks-as-enforcement-not-instructions.md))*
+5. The agent will remember to check the reference file you told it to always check first. *([context-injection](patterns/context-injection.md))*
 6. Telling the agent "don't be sycophantic" stops it from being sycophantic. *([PM-003](postmortems/003-stop-hook-sycophancy-guard-claude-code.md))*
 7. Telling the agent to estimate runtime before executing means it will actually do the arithmetic. *([PM-042](postmortems/042-fifteen-hours-and-eighty-four-minutes.md))*
-8. A rule with an obvious reason behind it doesn't need enforcement.
-9. If the agent acknowledges a correction, the behavior is corrected.
-10. Instructions compete fairly for attention no matter how long the session gets.
+8. A rule with an obvious reason behind it doesn't need enforcement. *(thesis: [ADR-002](adr/002-hooks-as-enforcement-not-instructions.md))*
+9. If the agent acknowledges a correction, the behavior is corrected. *(thesis: [ADR-002](adr/002-hooks-as-enforcement-not-instructions.md))*
+10. Instructions compete fairly for attention no matter how long the session gets. *([PM-036](postmortems/036-compaction-ate-the-doubt.md))*
 
 ## Memory, context, and long sessions
 
@@ -23,11 +23,11 @@ Where an assumption has its own documented funeral, the link points to it. Unlin
 12. The agent will warn you before it runs out of room — and won't nag you to stop when it has plenty. *([PM-007](postmortems/007-wrap-nudge-overfiring-below-half-context.md))*
 13. Context compaction preserves the important parts. *([PM-036](postmortems/036-compaction-ate-the-doubt.md))*
 14. If the agent doubted a result earlier, it still doubts it after compaction. *([PM-036](postmortems/036-compaction-ate-the-doubt.md))*
-15. A session that has run for three days is the same reasoner it was on day one.
-16. The agent's stated session goal is still the actual session goal.
-17. What the agent remembers about the codebase matches what's currently in the codebase.
+15. A session that has run for three days is the same reasoner it was on day one. *([PM-036](postmortems/036-compaction-ate-the-doubt.md))*
+16. The agent's stated session goal is still the actual session goal. *([context-injection](patterns/context-injection.md))*
+17. What the agent remembers about the codebase matches what's currently in the codebase. *([PM-020](postmortems/020-the-fix-that-kept-getting-unfixed.md))*
 18. If the agent said a number four turns ago and refuted it two turns ago, it won't reuse the refuted number. *([PM-036](postmortems/036-compaction-ate-the-doubt.md))*
-19. Writing something important in conversation is as durable as writing it to disk.
+19. Writing something important in conversation is as durable as writing it to disk. *([PM-036](postmortems/036-compaction-ate-the-doubt.md))*
 20. The agent will notice when its own working notes have been deleted out from under it. *([PM-026](postmortems/026-the-files-deleted-at-midnight.md))*
 
 ## Git and version control
