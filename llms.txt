@@ -1,6 +1,6 @@
 # Claude Code in Production
 
-> Real postmortems (43), Architecture Decision Records (17), and enforcement-hook patterns (13) from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, 148 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
+> Real postmortems (45), Architecture Decision Records (17), and enforcement-hook patterns (13) from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, 148 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
 
 ## Start here
 
@@ -63,6 +63,8 @@
 - [$75 a day of heartbeat](postmortems/041-seventy-five-dollars-a-day-of-heartbeat.md): an LLM in a 30-minute cron control loop; control belongs in deterministic code.
 - [Fifteen hours and eighty-four minutes](postmortems/042-fifteen-hours-and-eighty-four-minutes.md): agents don't reason about asymptotics; wall-clock was the detector every time.
 - [Overfitting anxiety nearly killed real edges](postmortems/043-overfitting-anxiety-nearly-killed-real-edges.md): wrong prices + triple-charged multiplicity penalties manufactured false kills; point the adversary both ways.
+- [Model switch audited like a new hire](postmortems/044-model-switch-audited-like-a-new-hire.md): mid-campaign LLM swap with a boundary banner, per-turn adversarial checks, a degradation log, and a symmetric closing review — each model caught the other's misses.
+- [The holdout that was never a holdout](postmortems/045-the-holdout-that-was-never-a-holdout.md): relative date ranges contaminated 10 of 14 screens; the fix had been applied forward but never backward; instrument validated with blind positive + negative controls.
 
 ## Architecture Decision Records
 

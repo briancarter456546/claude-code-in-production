@@ -4,7 +4,7 @@
 
 This repo is the reconstructed incident log of [IronFrame](https://github.com/briancarter456546), a reliability layer built around Claude Code by one operator (Brian Carter) running a real business on it: systematic trading research, content pipelines, and multi-machine automation. Five months. 1,258+ commits. 148 enforcement hooks. A Windows PC, a Mac Mini compute worker, and a cloud droplet, coordinated by AI agents around the clock — with real money exposed to the results.
 
-Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **43 postmortems, 17 architecture decision records, 13 reusable hook patterns**, and the era narrative connecting them.
+Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **45 postmortems, 17 architecture decision records, 13 reusable hook patterns**, and the era narrative connecting them.
 
 ## Why hooks instead of prompts
 
@@ -17,7 +17,7 @@ The core finding, repeated across every incident here: **instructions decay, enf
 - Here to steal mechanisms: [`patterns/`](patterns/) — sanitized, runnable hook skeletons, each with its own failure modes documented.
 - Skeptical of the whole thing: [META.md](META.md) — how this was reconstructed, the numbers policy, and what's deliberately not here.
 
-## The postmortems (43)
+## The postmortems (45)
 
 One incident per file: what broke, how it was detected, root cause, blast radius, the fix, and — the field almost nobody publishes — **whether the resulting guard has fired since.**
 
@@ -88,6 +88,8 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [041](postmortems/041-seventy-five-dollars-a-day-of-heartbeat.md) | $75/day for an LLM to decide, every 30 minutes, that nothing needed doing |
 | [042](postmortems/042-fifteen-hours-and-eighty-four-minutes.md) | Agents don't reason about asymptotics: a 15-hour loop and an 84-minute silent subagent |
 | [043](postmortems/043-overfitting-anxiety-nearly-killed-real-edges.md) | The agent was so afraid of overfitting it nearly killed five real edges |
+| [044](postmortems/044-model-switch-audited-like-a-new-hire.md) | We switched LLMs mid-campaign and audited the new model like a new hire |
+| [045](postmortems/045-the-holdout-that-was-never-a-holdout.md) | The holdout our screens were protecting had been visible all along |
 
 ## The decision record: 17 ADRs
 
