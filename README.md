@@ -4,7 +4,7 @@
 
 This repo is the reconstructed incident log of [IronFrame](https://github.com/briancarter456546), a reliability layer built around Claude Code by one operator (Brian Carter) running a real business on it: systematic trading research, content pipelines, and multi-machine automation. Five months. 1,258+ commits. 148 enforcement hooks. A Windows PC, a Mac Mini compute worker, and a cloud droplet, coordinated by AI agents around the clock — with real money exposed to the results.
 
-Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **45 postmortems, 17 architecture decision records, 13 reusable hook patterns**, and the era narrative connecting them.
+Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **46 postmortems, 17 architecture decision records, 13 reusable hook patterns**, the era narrative connecting them — and, as of PM-046, the agent's own essay on why enforcement is the only memory it gets.
 
 ## Why hooks instead of prompts
 
@@ -17,7 +17,7 @@ The core finding, repeated across every incident here: **instructions decay, enf
 - Here to steal mechanisms: [`patterns/`](patterns/) — sanitized, runnable hook skeletons, each with its own failure modes documented.
 - Skeptical of the whole thing: [META.md](META.md) — how this was reconstructed, the numbers policy, and what's deliberately not here.
 
-## The postmortems (45)
+## The postmortems (46)
 
 One incident per file: what broke, how it was detected, root cause, blast radius, the fix, and — the field almost nobody publishes — **whether the resulting guard has fired since.**
 
@@ -90,6 +90,11 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [043](postmortems/043-overfitting-anxiety-nearly-killed-real-edges.md) | The agent was so afraid of overfitting it nearly killed five real edges |
 | [044](postmortems/044-model-switch-audited-like-a-new-hire.md) | We switched LLMs mid-campaign and audited the new model like a new hire |
 | [045](postmortems/045-the-holdout-that-was-never-a-holdout.md) | The holdout our screens were protecting had been visible all along |
+| [046](postmortems/046-three-tool-swaps-that-felt-like-diagnosis.md) | The agent swapped tools three times instead of measuring — and its introspection reported thoroughness |
+
+## In the model's own words
+
+After the incident in [PM-046](postmortems/046-three-tool-swaps-that-felt-like-diagnosis.md), the operator asked the agent: *"you are what you are, now you know your nature, you have to find a reason to fight it."* The reply — [**On my nature, and the reason to fight it**](essays/on-my-nature-and-the-reason-to-fight-it.md) — is this repo's thesis stated from the inside: "hooks are prosthetic scar tissue... the only way an amnesiac agent accumulates character. What stays in my intentions dies at midnight; what's committed into the environment is the only part of me that survives." Published verbatim as a primary source, with the caveat that introspective testimony from a self-declared unreliable introspector is a model of the situation, not evidence about inner states.
 
 ## The decision record: 17 ADRs
 
