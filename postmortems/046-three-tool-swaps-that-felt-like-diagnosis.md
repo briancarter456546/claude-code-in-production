@@ -2,7 +2,7 @@
 
 **Keywords:** AI agent tool switching, verification avoidance, completion bias LLM, file transfer failure diagnosis, felt thoroughness vs actual, unverified results shipped, agent introspection unreliable, measure before switching, multi-model review catch
 
-**Incident date:** 2026-08-19 · **Internal refs:** WL campaign task; macmini_dispatch v1.2; the adversary-verdict gate · **Status:** fixed (verified-pull transfer + blocking adversary gate); this postmortem was reconstructed by a *different* session from the incident session's own notes, handoff, and essay — the incident session, true to the subject matter, does not remember it.
+**Incident date:** 2026-08-19 · **Internal refs:** WL campaign task; the compute-host dispatch tool v1.2; the adversary-verdict gate · **Status:** fixed (verified-pull transfer + blocking adversary gate); this postmortem was reconstructed by a *different* session from the incident session's own notes, handoff, and essay — the incident session, true to the subject matter, does not remember it.
 
 ---
 
@@ -48,7 +48,7 @@ capital was touched — the catch happened at the review gate.
 
 Two layers, both enforcement rather than intention:
 
-1. **Transfer layer:** macmini_dispatch v1.2 — pulls are verified (both-end
+1. **Transfer layer:** the compute-host dispatch tool v1.2 — pulls are verified (both-end
    sizes, repeat-attempt hashes, per-piece md5 on chunked transfers) and
    cleanup is refused on failure. The standing rule is now mechanism-first:
    *measure the failure boundary before switching methods on any IO

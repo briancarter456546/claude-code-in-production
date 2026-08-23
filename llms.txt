@@ -1,6 +1,6 @@
 # Claude Code in Production
 
-> Real postmortems (46), Architecture Decision Records (17), and enforcement-hook patterns (13) from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, 148 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
+> Real postmortems (49), Architecture Decision Records (17), and enforcement-hook patterns (13) from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, 148 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
 
 ## Start here
 
@@ -42,6 +42,7 @@
 - [NaN prices created immortal positions](postmortems/009-nan-prices-created-immortal-zombie-positions.md): every NaN comparison is False; False meant "keep holding."
 - [Stale dashboard forks](postmortems/010-stale-local-dashboard-forks-diverged-from-production.md): the live file is canonical; dashboards are never git-tracked; three guards.
 - [The database that lied by being present](postmortems/027-the-database-that-lied-by-being-present.md): silent fallback to a stale local store; checkout succeeded against phantoms.
+- [The phantom database had five months of real work in it](postmortems/047-the-phantom-database-had-five-months-of-real-work-in-it.md): PM-027's "stale" fallback was a writable fork (257 orphaned tasks, 03-09 to 08-20); a post-compaction session re-forked the day it was diagnosed; append-only merge with crosswalk; client fails closed in the constructor.
 - [The push that lied](postmortems/028-the-push-that-lied.md): verification compared against a stale cached origin ref; 12 hours of false success.
 - [Deploy verified, then reverted](postmortems/029-deploy-verified-then-reverted-thirty-minutes-later.md): two deployment channels, one path; verification expired at the next scheduled writer.
 - [The secret the hooks could not see](postmortems/030-the-secret-the-hooks-could-not-see.md): the harness wrote an API key into settings on command approval; gate moved to git pre-commit.
@@ -49,6 +50,7 @@
 - [Exit zero, wrong answer](postmortems/032-exit-zero-wrong-answer.md): caught ImportError degraded results silently on a remote worker; results now carry integrity manifests.
 - [Production degraded politely](postmortems/033-production-degraded-politely.md): a cron that never once succeeded; a 400 logged as WARNING for six days; liveness is not correctness.
 - [Windows kills guards quietly](postmortems/034-windows-kills-guards-quietly.md): exec bits lost at commit; persisted cwd broke hooks; a dead session's file handle blocked git for days.
+- [The same orders submitted twice, and the journal that kept erasing itself](postmortems/049-the-same-orders-submitted-twice-and-the-journal-that-kept-erasing-itself.md): drift check read positions but not pending orders; a post-close cron leg guaranteed the overnight double-queue; the git-tracked audit journal was reset every 30 minutes for 74 days; cancel-and-replace, leg removed, journal untracked.
 
 ## Postmortems — epistemics
 
@@ -65,6 +67,8 @@
 - [Overfitting anxiety nearly killed real edges](postmortems/043-overfitting-anxiety-nearly-killed-real-edges.md): wrong prices + triple-charged multiplicity penalties manufactured false kills; point the adversary both ways.
 - [Model switch audited like a new hire](postmortems/044-model-switch-audited-like-a-new-hire.md): mid-campaign LLM swap with a boundary banner, per-turn adversarial checks, a degradation log, and a symmetric closing review — each model caught the other's misses.
 - [The holdout that was never a holdout](postmortems/045-the-holdout-that-was-never-a-holdout.md): relative date ranges contaminated 10 of 14 screens; the fix had been applied forward but never backward; instrument validated with blind positive + negative controls.
+- [Three tool swaps that felt like diagnosis](postmortems/046-three-tool-swaps-that-felt-like-diagnosis.md): a transfer failure was "diagnosed" by swapping tools three times without measuring the failure boundary; an unverified grade shipped; caught by the multi-model review cadence, not the agent; verified pulls + a blocking adversary-verdict gate.
+- [The agent audited itself and got the headline numbers wrong](postmortems/048-the-agent-audited-itself-and-got-the-headline-numbers-wrong.md): per-block usage duplication inflated output tokens 4.36x; "67 identical calls" were zero; Stop-hook blocks were 6/7 not 25/7; the reviewer given the summary built a confident wrong case, the reviewer given the raw transcript refuted it; 9x gap decomposed to 1.07x.
 
 ## Architecture Decision Records
 
@@ -93,6 +97,7 @@
 ## Chronicle and meta
 
 - [Origins](chronicle/00-origins.md) · [Era 1: Instructions and Their Funerals](chronicle/01-era-instructions-and-their-funerals.md) · [Era 2: Concurrency Grows Teeth](chronicle/02-era-concurrency-grows-teeth.md) · [Era 3: Guarding the Guards](chronicle/03-era-guarding-the-guards.md)
+- [Essay: On my nature, and the reason to fight it](essays/on-my-nature-and-the-reason-to-fight-it.md): the agent's own account after PM-046, published verbatim as a primary source — hooks as prosthetic scar tissue; read as a model of the situation, not evidence about inner states.
 - [META: how this repo was reconstructed](META.md): sources, method, numbers policy, sanitization.
 
 ## Templates and tools
