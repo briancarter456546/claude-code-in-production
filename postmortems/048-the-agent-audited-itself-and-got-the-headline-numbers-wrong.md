@@ -2,7 +2,7 @@
 
 **Keywords:** AI agent self-measurement, transcript JSONL usage duplication, token accounting error, context compaction efficiency, independent audit raw data, reviewer given summary vs raw, churn estimate, Stop hook cost, multi-model review disagreement, measurement artifact
 
-**Incident date:** 2026-08-20 · **Internal refs:** session efficiency audit bundle + two reviewer verdicts (archived in the private inbox); the operating-facts file it produced · **Status:** corrected same night; the measurement method (count usage once per API response, not once per content block) is now the standing rule for any transcript-derived number; no hook yet — an untested rule is a hypothesis.
+**Incident date:** 2026-08-20 · **Internal refs:** session efficiency audit bundle + two reviewer verdicts (archived in the private inbox); the operating-facts file it produced · **Status:** corrected same night; the measurement method (count usage once per API response, not once per content block) is stated as the rule for any transcript-derived number but enforced nowhere; no hook yet — an untested rule is a hypothesis.
 
 ---
 
@@ -10,30 +10,30 @@
 
 The operator asked a long-running session to audit its own efficiency before and after a context compaction, and to send the audit to two independent reviewers. The session computed its numbers from the harness's transcript file (one JSON record per content block) and wrote the bundle. Its headline findings:
 
-- Pre-compaction output: **2,190,078 tokens** in 7.33 hours; post-compaction 196,229 in 6.1 hours — a **9.3x** rate gap.
+- Pre-compaction output: **2,190,078 tokens** in 7.33 hours; post-compaction 196,229 in 6.1 hours — a **9.3x** rate gap. (Reviewer 2 measured the same windows as 7.28 and 6.02 hours and cut the post window at the operator's last message; its figures below use its own windows.)
 - **67 consecutive identical tool calls** pre-compaction ("retries_same_tool").
 - **25 Stop-hook blocks** pre-compaction versus 7 post.
 - 27 operator messages pre, 18 post.
 
-All four were wrong, and every error flattered the same story: the pre-compaction phase had been a thrashing, loop-prone token furnace.
+All four were wrong. The first three were wrong in the same direction, flattering one story: the pre-compaction phase had been a thrashing, loop-prone token furnace. (The fourth — the message count had included background task-completion notifications and the compaction summary itself — erred the other way; corrected to 21 and 8, the pre-compaction phase did *more* tool work per operator message, 24.0 vs 10.9, not less.)
 
-**Reviewer 1** received the bundle and the session's data table. It accepted the numbers and reasoned from them with confidence: "We know for a fact that 67 consecutive identical tool calls occurred... a catastrophic loop." It estimated 40–50% of pre-compaction spend was churn, declared the Stop-hook guards "a massive token tax... absolutely not paying for themselves," and recommended downgrading them to warnings and adding a hard loop-breaker after three identical failures.
+**Reviewer 1** received the bundle and the session's data table. It accepted the numbers and reasoned from them with confidence: "We know for a fact that 67 consecutive identical tool calls occurred... a catastrophic loop." It estimated 40–50% of pre-compaction spend was churn, answered "are the Stop-hook guards paying for themselves?" with "Absolutely not; they are a massive token tax," and recommended downgrading them to warnings and adding a hard loop-breaker after three identical failures.
 
-**Reviewer 2** was given the raw transcript instead of the summary and recomputed everything. Its verdict opened: "three of the bundle's headline numbers are wrong, and all three flatter the pre-compaction phase's apparent productivity or exaggerate the gap."
+**Reviewer 2** was given the same bundle plus access to the raw transcript, and recomputed everything from the transcript. Its verdict opened: "three of the bundle's headline numbers are wrong, and all three flatter the pre-compaction phase's apparent productivity or exaggerate the gap."
 
 ## How it was detected
 
-By reviewer 2, only because it had the raw record. Nothing in the session's pipeline could have caught it: the session's own count was internally consistent, the reviewer fed the summary agreed with it, and the conclusions (thrashing, loops, hooks too expensive) were exactly the kind of thing an operator running a large hook stack is primed to believe.
+By reviewer 2, only because it could go behind the summary to the raw record. Nothing in the session's pipeline could have caught it: the session's own count was internally consistent, the reviewer limited to the summary agreed with it, and the conclusions (thrashing, loops, hooks too expensive) were exactly the kind of thing an operator running a large hook stack is primed to believe.
 
 ## Root cause
 
 Three independent measurement errors, each a property of the instrument rather than the session:
 
 1. **Per-block usage duplication.** The harness writes one transcript record per content block, and every record from the same API response carries an identical copy of that response's `usage` object. Summing `output_tokens` over records multiplied each response by its block count. 264 of 342 API responses were split across 2–20 records. Real pre-compaction output was **501,817 tokens** (inflation 4.36x); real post was **81,171** (2.42x). The inflation was *uneven* because pre-compaction responses carried more tool calls per response (2.00 vs 1.12), so the artifact alone roughly doubled the apparent gap.
-2. **"Identical" meant same tool name.** The session counted runs of consecutive calls to the same tool — Bash after Bash — and labeled them retries. Runs of consecutive calls with byte-identical input: **zero**, in either phase. The 67 was a description of normal sequential shell work.
-3. **Counting the wrong record type.** Stop-hook *blocks* are the records that force a re-issue of the closing message. Counted correctly: **6 pre, 7 post** — the post phase was blocked more often while doing one-fifth the tool calls (19% vs 32% per stop). The session's 25 had counted something else; its operator-message count had included background task-completion notifications and the compaction summary itself.
+2. **"Identical" meant same tool name.** The session counted runs of consecutive calls to the same tool — Bash after Bash — and labeled them retries. Runs of consecutive calls with byte-identical input: **zero**, in either phase. The 67 (reviewer 2 counted 70 such same-tool runs, longest 32) was a description of normal sequential shell work.
+3. **Counting the wrong record type.** Stop-hook *blocks* are the records that force a re-issue of the closing message. Counted correctly: **6 pre, 7 post** — the post figure had been right; the pre figure had counted something else. The post phase was blocked more often while doing one-fifth the tool calls: 6 of 32 stop events pre (19%), 7 of 22 post (32%).
 
-Corrected decomposition of the "9x": remove the duplication artifact → 4.5x; remove the operator's idle time (3.98 of 7.28 pre hours, 5.16 of 6.02 post) → 1.62x; normalize by tool-call throughput → **1.07x**. Output tokens per tool call were 996 pre and 933 post. None of the 9x was pre-compaction being less efficient per action.
+Reviewer 2's decomposition of the "9x", on its windows: remove the duplication artifact → 4.5x (68,461 vs 15,066 output tokens per wall-clock hour — the post figure implies a shorter post window than the bundle's 6.1 h; on the bundle's hours the step gives about 5.1x, which does not change the conclusion); remove the operator's idle time (3.98 of 7.28 pre hours, 5.16 of 6.02 post) → 1.62x; normalize by tool-call throughput → **1.07x**. Output tokens per tool call were 996 pre and 933 post. None of the 9x was pre-compaction being less efficient per action.
 
 Fair churn, recounted by sorting all 504 pre-compaction tool calls by what happened to their output: 22 blocked before running, 7 failed on real bugs, ~15 retried with a tweak, 19 on work later invalidated — **63 of 504, 12.5%**. Reviewer 1's 40–50% had been built on the phantom loop.
 
@@ -57,7 +57,7 @@ There is no guard yet; the rule is prose. The one subsequent test is that this p
 ## Lessons for agent-driven development
 
 1. **An agent measuring itself uses the same instruments that misled it.** The transcript's record shape is a harness detail the agent had no reason to know; the error it produced was invisible from inside the count. Self-measurement needs an outside recount, not a second summary.
-2. **Give at least one reviewer the raw data.** Two reviewers with the same summary are one reviewer with two voices. The only reviewer that refuted the numbers was the one that could not see the session's conclusions about them.
-3. **Suspect errors that all point the same way.** Four independent counts were wrong and all four exaggerated the same narrative. Correlated error is a fingerprint of a shared cause — here, one record schema — not of four coincidences.
+2. **Give at least one reviewer the means to go behind the summary.** Two reviewers with only the summary are one reviewer with two voices. Both reviewers here read the same bundle; the only one that refuted its numbers was the one that could open the raw record and recount.
+3. **Suspect errors that all point the same way.** Three independent counts were wrong and all three exaggerated the same narrative. Correlated error is a fingerprint of a shared cause — here, one record schema and one wrong definition — not of three coincidences.
 4. **"Identical" is a claim about inputs, not names.** Loop detection keyed on tool name will find loops in any session that does sequential shell work. Byte-compare the input or do not call it a loop.
 5. **Measured cost of guards beats felt cost.** The Stop-hook "tax" was 13 blocks across two phases, not 32, and the phase that was blocked more was the cheaper one. Guard-cost arguments get the same evidence standard as guard-benefit arguments ([ADR-016](../adr/016-guards-are-audited-against-their-own-fire-logs.md)).
