@@ -1,6 +1,6 @@
 # Claude Code in Production
 
-> Real postmortems (49), Architecture Decision Records (17), and enforcement-hook patterns (13) from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, 148 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
+> Real postmortems (50), Architecture Decision Records (18), and enforcement-hook patterns (13) from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, 148 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
 
 ## Start here
 
@@ -25,6 +25,7 @@
 - [When the safety layer became the outage](postmortems/019-when-the-safety-layer-became-the-outage.md): 44 shell guards, ~3s per command; relative paths blocked every tool call; consolidated into dispatchers.
 - [The fix that kept getting unfixed](postmortems/020-the-fix-that-kept-getting-unfixed.md): concurrent sessions silently reverted a guard fix; order protection guards before the fixes they defend.
 - [Alarm fatigue by the numbers](postmortems/021-alarm-fatigue-by-the-numbers.md): one file approved 25 times; 70k tokens of guard churn poisoning compaction.
+- [The review process failed its own review — twice](postmortems/050-the-review-process-failed-its-own-review.md): the new review law was run through its own ladder on ship day; both reviewers rejected v1.0, the repairs were rejected once more, and the two-cycle escalation armed against the law itself; fail-closed rescoped off the ruling tier; cap admission made an atomic reservation (40-writer race test, exact counts); 4 of the guard's first 5 blocks were quoted-text false positives.
 
 ## Postmortems — concurrency
 
@@ -89,6 +90,7 @@
 - [Advisory injection](adr/015-advisory-injection-second-model-in-the-loop.md): a scored Stop hook triggers an external advisor; acknowledge or override with reasons; never silently dismiss.
 - [Guards audited against their own fire logs](adr/016-guards-are-audited-against-their-own-fire-logs.md): net-negative guards are killed; zero-fire guards are findings; heuristics don't block.
 - [Bypass rate is a bug report on the guard](adr/017-bypass-rate-is-a-bug-report-on-the-guard.md): bypasses are sensor data; recurring reasons are named false-positive classes.
+- [Tiered adversarial review with budget caps](adr/018-tiered-adversarial-review-with-budget-caps.md): four tiers (T0 "no review" is a positive classification; the ruling tier is never thinned); reviewers get files never summaries; the authoring model family can't fill the independent seat; every dispatch ledgered; measure 14 days, then caps from data — caps limit spend, never evidence.
 
 ## Patterns (sanitized runnable skeletons, each with its own failure modes)
 

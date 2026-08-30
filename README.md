@@ -4,7 +4,7 @@
 
 This repo is the reconstructed incident log of [IronFrame](https://github.com/briancarter456546), a reliability layer built around Claude Code by one operator (Brian Carter) running a real business on it: systematic trading research, content pipelines, and multi-machine automation. Five months. 1,258+ commits. 148 enforcement hooks. A Windows PC, a Mac Mini compute worker, and a cloud droplet, coordinated by AI agents around the clock — with real money exposed to the results.
 
-Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **49 postmortems, 17 architecture decision records, 13 reusable hook patterns**, the era narrative connecting them — and, as of PM-046, the agent's own essay on why enforcement is the only memory it gets.
+Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **50 postmortems, 18 architecture decision records, 13 reusable hook patterns**, the era narrative connecting them — and, as of PM-046, the agent's own essay on why enforcement is the only memory it gets.
 
 ## Why hooks instead of prompts
 
@@ -17,7 +17,7 @@ The core finding, repeated across every incident here: **instructions decay, enf
 - Here to steal mechanisms: [`patterns/`](patterns/) — sanitized, runnable hook skeletons, each with its own failure modes documented.
 - Skeptical of the whole thing: [META.md](META.md) — how this was reconstructed, the numbers policy, and what's deliberately not here.
 
-## The postmortems (49)
+## The postmortems (50)
 
 One incident per file: what broke, how it was detected, root cause, blast radius, the fix, and — the field almost nobody publishes — **whether the resulting guard has fired since.**
 
@@ -44,6 +44,7 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [019](postmortems/019-when-the-safety-layer-became-the-outage.md) | 44 guard hooks added 3s to every command — then blocked every tool call |
 | [020](postmortems/020-the-fix-that-kept-getting-unfixed.md) | The guard fix that concurrent sessions kept silently reverting |
 | [021](postmortems/021-alarm-fatigue-by-the-numbers.md) | Alarm fatigue, measured: one file approved 25 times, 70k tokens of retry churn |
+| [050](postmortems/050-the-review-process-failed-its-own-review.md) | The new mandatory review process failed its own review, twice — and armed its own escalation rule against itself |
 
 ### Concurrency (7–12 sessions, one repo)
 
@@ -99,7 +100,7 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 
 After the incident in [PM-046](postmortems/046-three-tool-swaps-that-felt-like-diagnosis.md), the operator asked the agent: *"you are what you are, now you know your nature, you have to find a reason to fight it."* The reply — [**On my nature, and the reason to fight it**](essays/on-my-nature-and-the-reason-to-fight-it.md) — is this repo's thesis stated from the inside: "hooks are prosthetic scar tissue... the only way an amnesiac agent accumulates character. What stays in my intentions dies at midnight; what's committed into the environment is the only part of me that survives." Published verbatim as a primary source, with the caveat that introspective testimony from a self-declared unreliable introspector is a model of the situation, not evidence about inner states.
 
-## The decision record: 17 ADRs
+## The decision record: 18 ADRs
 
 The postmortems are the incidents; the ADRs are the load-bearing choices the incidents forced. Superseded ADRs are never deleted — the supersession chain is the evolution story.
 
@@ -122,6 +123,7 @@ The postmortems are the incidents; the ADRs are the load-bearing choices the inc
 | [015](adr/015-advisory-injection-second-model-in-the-loop.md) | A second model's advisory opinions are injected into the loop — as opinions, never as facts |
 | [016](adr/016-guards-are-audited-against-their-own-fire-logs.md) | Guards are audited against their own fire logs, and net-negative guards are killed |
 | [017](adr/017-bypass-rate-is-a-bug-report-on-the-guard.md) | A guard's bypass rate is treated as a bug report on the guard |
+| [018](adr/018-tiered-adversarial-review-with-budget-caps.md) | External adversarial review is tiered and budget-capped — caps limit spend, never evidence |
 
 ## The pattern catalog: 13 reusable mechanisms
 
