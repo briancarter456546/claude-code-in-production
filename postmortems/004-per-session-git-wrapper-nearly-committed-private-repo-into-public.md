@@ -71,3 +71,68 @@ That is the bar this fix has cleared. Whether it holds under the next unanticipa
 2. **Implausible output is a first-class detector — if something reads it.** No guard fired here. A count that couldn't be true did the work. Agents that pattern-match tool output for "success" and move on will sail straight past exactly this class of catch; reading the numbers is not optional.
 3. **Your safety layer is attack surface.** Code written to make operations *safer* (per-session isolation) created a novel, higher-consequence failure (cross-repo staging) that the plain tool never had. Every reliability mechanism you add is also a new thing that can be wrong — and it tends to be wrong in ways more surprising than the problem it solved.
 4. **When the target is sensitive, verify the artifact, not the exit code.** "The commit succeeded" says nothing about *what* it committed. The only thing that made the rebuild trustworthy was manually confirming the commit held exactly the 11 intended files. For anything touching a trust boundary — public vs. private, prod vs. dev — check the contents, every time.
+
+---
+
+## Amendment, 2026-09-02: the class was not closed, and the mechanism was the wrong one
+
+Two things in this postmortem have since been shown to be wrong. Both are worth
+recording precisely, because the errors are more instructive than the original
+incident.
+
+### 1. The `-C` fix was real, but it closed only one of two paths
+
+This file treats cross-repo staging as fixed once the wrapper honored `-C`. It
+was not. Six weeks later a per-session index in the private repo was found
+holding 273 entries from a **different project** — `.python-version`,
+`uv.lock`, `CITATION.cff`, `.github/workflows/codeql.yml` — of which only 31
+existed in that worktree, and whose blobs are absent from its object database.
+
+The `-C` fix held. The second path was **environment inheritance**. The wrapper
+exports `GIT_INDEX_FILE` and then `exec`s, and git itself sets `GIT_INDEX_FILE`
+for hooks in every commit mode. Any descendant process that ran git against a
+different repository arrived with an index path belonging to the *first* repo,
+and the wrapper's "respect the user's choice" early return handed it straight
+through — writing the second repo's tree into the first repo's index.
+
+Reproduced on demand in throwaway repos: repo A's session index went from
+`[a_only.txt]` to `[src/main.py, uv.lock]` after **one** descendant git call
+inside a nested repo. Fixed by ruling on an inherited `GIT_INDEX_FILE` only
+after the target gitdir is known, and ignoring it when it belongs to a
+different repository.
+
+The lesson is not "we missed a case." It is that **lesson 1 below was applied
+to one input (`-C`) and not to the general class**. The wrapper resolved the
+global against the command's target for arguments, and against inherited
+environment for nothing at all.
+
+### 2. The whole mechanism is a documented anti-pattern
+
+Lesson 3 below says "your safety layer is attack surface." That was right, and
+it did not go far enough. A design review (Perplexity deep research, 2026-09-02)
+found that a persistent per-process `GIT_INDEX_FILE` is not a supported pattern:
+the variable exists for *ephemeral* use — plumbing commands, hooks, the
+temporary index git builds internally. The documented failure modes are dangling
+entries from `update-index --index-info`, lost intent-to-add flags, unmerged
+stages collapsed by `read-tree`, and cross-repo poisoning through inheritance.
+
+Every one of those was independently rediscovered in this repo, the hard way,
+across five separate bugs — including one where the "fix" left affected sessions
+permanently unable to commit while the audit trail reported success.
+
+**`git worktree` is git's first-class answer to this exact problem.** Each
+linked worktree has its own index and its own HEAD while sharing one object
+store. It is what CI systems, bots, and Claude Code's own documentation
+recommend for parallel agents. A pilot on 2026-09-02 confirmed full staging and
+commit isolation, with shared data supplied by directory junctions, at ~0.71 GB
+of tracked content per worktree.
+
+### The lesson this adds
+
+**Before building a reliability mechanism, check whether the tool already has
+one.** This wrapper is roughly 800 lines of bash, a companion sweeper, a
+pre-commit backstop, five guards, and a two-day debugging session — reproducing,
+imperfectly, a feature git has shipped since 2015. The original judgment that a
+custom shim was needed was never tested against the question "what does git
+provide for this?", and no amount of careful patching afterwards could recover
+from getting that question unasked.
