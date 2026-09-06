@@ -48,3 +48,54 @@ Inverted question for this one: the *bypasses* now fire. Recent 12-day audit win
 2. **Test the paths designed to be rare.** The bypass is exercised least, trusted most at the worst moment, and was the only untested branch in every guard that had it.
 3. **Verify delivery, not just parsing.** The parser was correct. The variable never arrived. End-to-end tests through the real process topology or it doesn't count.
 4. **Documentation of a mechanism is a claim; log traffic is the evidence.** Dozens of README-documented bypasses with zero logged uses should have been the alarm, if anything had been counting.
+
+---
+
+## Amendment, 2026-09-05: the fix reached about a third of the sites
+
+This file says the class was fixed. A fleet-wide sweep three months later says it
+was fixed **where it was applied**, and that nobody had ever counted the sites.
+
+**The sweep.** All 111 hook implementations were read, together with the harness
+registration matrix and the dispatcher's internal guard table (delegated modules
+run in-process inside the dispatcher, so they inherit the same frozen
+environment and the same defect). Of those, **20 distinct bypass points sit on a
+code path where a shell command exists at all** — the only places an inline
+`VAR=reason:x cmd` prefix is even syntactically possible.
+
+**13 of the 20 still read their bypass exclusively from the process
+environment.** Eight standalone guards, five inside the dispatcher. The correct
+pattern — read the environment *or* parse the inline prefix out of the command
+string the hook was handed — is present in exactly 7 hooks, three of which ship
+self-test cases asserting that the inline form goes silent without it.
+
+**Five of the 13 print a bypass recipe in their own block message that cannot
+work.** The guard blocks, tells the agent the incantation, the agent runs the
+incantation, and the guard blocks again — the invisible-failure mode described
+above, now with the guard actively teaching it. One of them offers shell-specific
+recipes that fail for a *second*, independent reason: they set the variable in a
+child shell, which the hook could not see even if the delivery path worked. The
+project's own instruction file documents nine bypasses in the inline form; every
+one lands in the defective or unreachable set.
+
+**And a category error worth naming:** guards that gate file writes, reads, skills
+or scheduled jobs never receive a command string at all, so an environment-variable
+bypass on those events is unreachable *by construction*, not merely broken. Marker
+files are the solved pattern for that half of the fleet ([marker-file-acks](../patterns/marker-file-acks.md)) —
+which has its own failure mode, published as [PM-053](053-the-approval-landed-in-a-copy-the-guard-never-read.md).
+
+**Not repaired, deliberately.** Making all 13 work would convert 13 inert bypasses
+into 13 live ones on the same day — a real weakening of the guard layer, and a
+policy decision for the operator rather than a cleanup an agent should self-serve.
+The audit's product is the inventory and the decision, not a patch.
+
+The lesson this amends is lesson 4 above. "Log traffic is the evidence" was the
+right instinct; what was missing was a **denominator**. Nobody knew how many
+bypass sites existed, so "the mechanism was ported" could not be checked against
+"ported to how many of how many." The count is the artifact: 20 sites, 7 correct,
+13 inert, 5 of those actively misinstructing.
+
+*(Caveat inherited from [PM-055](055-the-audit-log-could-not-be-counted.md): the
+block-frequency numbers in the same audit document were wrong and are superseded.
+The parse-level finding above survived that review; the measurement built on top
+of it did not.)*

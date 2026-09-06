@@ -26,6 +26,8 @@
 - [The fix that kept getting unfixed](postmortems/020-the-fix-that-kept-getting-unfixed.md): concurrent sessions silently reverted a guard fix; order protection guards before the fixes they defend.
 - [Alarm fatigue by the numbers](postmortems/021-alarm-fatigue-by-the-numbers.md): one file approved 25 times; 70k tokens of guard churn poisoning compaction.
 - [The review process failed its own review — twice](postmortems/050-the-review-process-failed-its-own-review.md): the new review law was run through its own ladder on ship day; both reviewers rejected v1.0, the repairs were rejected once more, and the two-cycle escalation armed against the law itself; fail-closed rescoped off the ruling tier; cap admission made an atomic reservation (40-writer race test, exact counts); 4 of the guard's first 5 blocks were quoted-text false positives.
+- [Three governance controls, none of them alive](postmortems/054-nothing-checked-whether-the-controls-were-still-alive.md): a tamper-resistant audit collector with 0 events in 4.5 months, a privileged-path gate at 1,347 allows / 0 blocks because its token is ambient, and an advisory injection fired 857 times carrying overturned rules with zero effect; blocking guards changed session output 5/5, advisory 0/4.
+- [The audit log could not be counted](postmortems/055-the-audit-log-could-not-be-counted.md): two timestamp field names (one timezone-naive) scored active guards as zero-event; dispatcher self-tests wrote into the production log (8 of 8 blocks of one guard were synthetic); guards also fire under a generic dispatcher event; the analysis that shipped off the bad counts was rejected on review and superseded in place.
 
 ## Postmortems — concurrency
 
@@ -52,6 +54,8 @@
 - [Production degraded politely](postmortems/033-production-degraded-politely.md): a cron that never once succeeded; a 400 logged as WARNING for six days; liveness is not correctness.
 - [Windows kills guards quietly](postmortems/034-windows-kills-guards-quietly.md): exec bits lost at commit; persisted cwd broke hooks; a dead session's file handle blocked git for days.
 - [The same orders submitted twice, and the journal that kept erasing itself](postmortems/049-the-same-orders-submitted-twice-and-the-journal-that-kept-erasing-itself.md): drift check read positions but not pending orders; a post-close cron leg guaranteed the overnight double-queue; the git-tracked audit journal was reset every 30 minutes for 74 days; cancel-and-replace, leg removed, journal untracked.
+- [The reviewer that read nothing and exited 0](postmortems/051-the-reviewer-that-read-nothing-and-exited-zero.md): a headless third-party agent CLI soft-denies every tool permission when unattended, so it read no files, wrote an empty verdict, and exited 0 while the review ledger recorded a successful dispatch; fixed by a stdin streaming transport plus an output-size contract, with the affected historical rows demoted to abstentions.
+- [The approval landed in a copy the guard never read](postmortems/053-the-approval-landed-in-a-copy-the-guard-never-read.md): the ack helper resolved its store from its own file while hooks launch by absolute primary path, so a worktree session's approval was invisible and the guard kept telling it to do what it had just done; the ack store is gitignored, so a fresh worktree starts with every approval apparently revoked.
 
 ## Postmortems — epistemics
 
@@ -70,6 +74,7 @@
 - [The holdout that was never a holdout](postmortems/045-the-holdout-that-was-never-a-holdout.md): relative date ranges contaminated 10 of 14 screens; the fix had been applied forward but never backward; instrument validated with blind positive + negative controls.
 - [Three tool swaps that felt like diagnosis](postmortems/046-three-tool-swaps-that-felt-like-diagnosis.md): a transfer failure was "diagnosed" by swapping tools three times without measuring the failure boundary; an unverified grade shipped; caught by the multi-model review cadence, not the agent; verified pulls + a blocking adversary-verdict gate.
 - [The agent audited itself and got the headline numbers wrong](postmortems/048-the-agent-audited-itself-and-got-the-headline-numbers-wrong.md): per-block usage duplication inflated output tokens 4.36x; "67 identical calls" were zero; Stop-hook blocks were 6/7 not 25/7; the reviewer given the summary built a confident wrong case, the reviewer given the raw transcript refuted it; 9x gap decomposed to 1.07x.
+- [Diagnosed from the comments, not the code](postmortems/052-diagnosed-from-the-comments-not-the-code.md): the agent read a wrapper's comment block (documenting two versions back) instead of its executable branch, declared 20 of 28 session git indexes permanently frozen, built and twice-rehearsed a repair tool that would have deleted exactly the entries the live code preserves, and retracted 43 minutes later after an approval gate and an external REJECT.
 
 ## Architecture Decision Records
 
