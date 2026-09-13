@@ -4,7 +4,7 @@
 
 This repo is the reconstructed incident log of [IronFrame](https://github.com/briancarter456546), a reliability layer built around Claude Code by one operator (Brian Carter) running a real business on it: systematic trading research, content pipelines, and multi-machine automation. Five months. 1,258+ commits. 148 enforcement hooks. A Windows PC, a Mac Mini compute worker, and a cloud droplet, coordinated by AI agents around the clock — with real money exposed to the results.
 
-Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **55 postmortems, 18 architecture decision records, 13 reusable hook patterns**, the era narrative connecting them — and, as of PM-046, the agent's own essay on why enforcement is the only memory it gets.
+Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **59 postmortems, 18 architecture decision records, 13 reusable hook patterns**, the era narrative connecting them — and, as of PM-046, the agent's own essay on why enforcement is the only memory it gets.
 
 ## Why hooks instead of prompts
 
@@ -17,7 +17,7 @@ The core finding, repeated across every incident here: **instructions decay, enf
 - Here to steal mechanisms: [`patterns/`](patterns/) — sanitized, runnable hook skeletons, each with its own failure modes documented.
 - Skeptical of the whole thing: [META.md](META.md) — how this was reconstructed, the numbers policy, and what's deliberately not here.
 
-## The postmortems (55)
+## The postmortems (59)
 
 One incident per file: what broke, how it was detected, root cause, blast radius, the fix, and — the field almost nobody publishes — **whether the resulting guard has fired since.**
 
@@ -47,6 +47,7 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [050](postmortems/050-the-review-process-failed-its-own-review.md) | The new mandatory review process failed its own review, twice — and armed its own escalation rule against itself |
 | [054](postmortems/054-nothing-checked-whether-the-controls-were-still-alive.md) | Three governance controls measured in one day: one never ran, one never blocked, one was ignored 857 times |
 | [055](postmortems/055-the-audit-log-could-not-be-counted.md) | The log we grade guards with could not be counted — and a recommendation had already shipped off the bad numbers |
+| [059](postmortems/059-the-exemption-was-inherited-by-the-whole-command.md) | A safety hook exempted any command containing a git commit — so "commit; place an order" skipped it |
 
 ### Concurrency (7–12 sessions, one repo)
 
@@ -60,6 +61,7 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [024](postmortems/024-ghost-text-from-another-session.md) | Tab-autocomplete leaked prompts between concurrent sessions and workspaces |
 | [025](postmortems/025-sessions-erased-each-others-hook-registrations.md) | Parallel sessions overwrote each other's hook registrations — twice in one day |
 | [026](postmortems/026-the-files-deleted-at-midnight.md) | Files deleted mid-session by an unknown actor, twice — published unsolved |
+| [056](postmortems/056-three-sessions-ran-for-days-in-the-wrong-lane.md) | One shared marker let every concurrent session re-stamp everyone's lane — three sessions ran days in the wrong context |
 
 ### Silent failure
 
@@ -79,6 +81,8 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [049](postmortems/049-the-same-orders-submitted-twice-and-the-journal-that-kept-erasing-itself.md) | The publisher submitted the same orders twice — and the journal that would have shown it was wiped every 30 minutes |
 | [051](postmortems/051-the-reviewer-that-read-nothing-and-exited-zero.md) | The external AI reviewer read nothing, wrote nothing, and exited 0 — the ledger logged a successful review |
 | [053](postmortems/053-the-approval-landed-in-a-copy-the-guard-never-read.md) | The approval landed in a copy nothing reads — the guard kept demanding what the agent had just done |
+| [057](postmortems/057-the-isolated-worktree-was-isolated-from-the-fixes-too.md) | The worktree session was isolated from the fixes too: a phantom empty database, pre-fix hooks, two staging areas |
+| [058](postmortems/058-windows-refused-the-nightly-jobs-and-did-not-count-them-as-missed.md) | Windows refused 11 nightly agent jobs, including the backup, and recorded zero missed runs |
 
 ### Epistemics: when the agent's beliefs go wrong
 

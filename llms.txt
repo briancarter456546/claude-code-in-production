@@ -1,6 +1,6 @@
 # Claude Code in Production
 
-> Real postmortems (50), Architecture Decision Records (18), and enforcement-hook patterns (13) from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, 148 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
+> Real postmortems (59), Architecture Decision Records (18), and enforcement-hook patterns (13) from running 7-12 concurrent Claude Code sessions in production for 5+ months (1,250+ commits, 148 hooks, 3 machines, real money on the line). Core thesis: instructions decay, enforcement doesn't — every incident here traces the path from "we told the agent not to" to "the agent cannot."
 
 ## Start here
 
@@ -28,6 +28,7 @@
 - [The review process failed its own review — twice](postmortems/050-the-review-process-failed-its-own-review.md): the new review law was run through its own ladder on ship day; both reviewers rejected v1.0, the repairs were rejected once more, and the two-cycle escalation armed against the law itself; fail-closed rescoped off the ruling tier; cap admission made an atomic reservation (40-writer race test, exact counts); 4 of the guard's first 5 blocks were quoted-text false positives.
 - [Three governance controls, none of them alive](postmortems/054-nothing-checked-whether-the-controls-were-still-alive.md): a tamper-resistant audit collector with 0 events in 4.5 months, a privileged-path gate at 1,347 allows / 0 blocks because its token is ambient, and an advisory injection fired 857 times carrying overturned rules with zero effect; blocking guards changed session output 5/5, advisory 0/4.
 - [The audit log could not be counted](postmortems/055-the-audit-log-could-not-be-counted.md): two timestamp field names (one timezone-naive) scored active guards as zero-event; dispatcher self-tests wrote into the production log (8 of 8 blocks of one guard were synthetic); guards also fire under a generic dispatcher event; the analysis that shipped off the bad counts was rejected on review and superseded in place.
+- [The exemption was inherited by the whole command](postmortems/059-the-exemption-was-inherited-by-the-whole-command.md): a brokerage read-only hook skipped any Bash command containing a git commit, so a commit chained with an order-placing clause skipped the guard; exemptions now require a solitary invocation; replay over 4,818 recorded commands (zero new blocks) and 1,023 prose files (30 false blocks to 0).
 
 ## Postmortems — concurrency
 
@@ -39,6 +40,7 @@
 - [Ghost text from another session](postmortems/024-ghost-text-from-another-session.md): tab-autocomplete read a global history file across sessions and workspaces; below the hook layer.
 - [Sessions erased each other's hook registrations](postmortems/025-sessions-erased-each-others-hook-registrations.md): settings.json read-modify-write race; orphan detection.
 - [The files deleted at midnight](postmortems/026-the-files-deleted-at-midnight.md): unattributable deletions, published unsolved; deletion provenance logging.
+- [Three sessions ran for days in the wrong lane](postmortems/056-three-sessions-ran-for-days-in-the-wrong-lane.md): the lane lived in one shared state file and the "already classified" marker was also shared, so every concurrent session re-classified on later prompts and re-stamped everyone's lane; three non-trading sessions got trading context for one to five days; a sibling injector had been dead eight weeks on the PM-016 env-var bug; per-session lane, 60-check acceptance test.
 
 ## Postmortems — silent failure
 
@@ -56,6 +58,8 @@
 - [The same orders submitted twice, and the journal that kept erasing itself](postmortems/049-the-same-orders-submitted-twice-and-the-journal-that-kept-erasing-itself.md): drift check read positions but not pending orders; a post-close cron leg guaranteed the overnight double-queue; the git-tracked audit journal was reset every 30 minutes for 74 days; cancel-and-replace, leg removed, journal untracked.
 - [The reviewer that read nothing and exited 0](postmortems/051-the-reviewer-that-read-nothing-and-exited-zero.md): a headless third-party agent CLI soft-denies every tool permission when unattended, so it read no files, wrote an empty verdict, and exited 0 while the review ledger recorded a successful dispatch; fixed by a stdin streaming transport plus an output-size contract, with the affected historical rows demoted to abstentions.
 - [The approval landed in a copy the guard never read](postmortems/053-the-approval-landed-in-a-copy-the-guard-never-read.md): the ack helper resolved its store from its own file while hooks launch by absolute primary path, so a worktree session's approval was invisible and the guard kept telling it to do what it had just done; the ack store is gitignored, so a fresh worktree starts with every approval apparently revoked.
+- [The isolated worktree was isolated from the fixes too](postmortems/057-the-isolated-worktree-was-isolated-from-the-fixes-too.md): the first real worktree session opened an empty phantom knowledge base (sqlite creates on read), fell 32 commits behind main in two days running pre-fix hooks, and was split across two git indexes by a wrapper that did not know worktrees exist; an unattended keep-current merge was rejected on review because a heartbeat is not a lock, so the schedule is report-only.
+- [Windows refused the nightly jobs and did not count them as missed](postmortems/058-windows-refused-the-nightly-jobs-and-did-not-count-them-as-missed.md): 11 enabled scheduled tasks (backup, nightly review and its fallback, this repo's writer) ended 0x800710E0 with NumberOfMissedRuns 0; no catch-up setting, battery stops, no success markers; fleet fixer sets catch-up/battery and wake only on non-repeating tasks; post-fix audit 0 enabled tasks missing settings.
 
 ## Postmortems — epistemics
 
