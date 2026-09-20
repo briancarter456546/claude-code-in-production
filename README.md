@@ -17,7 +17,7 @@ The core finding, repeated across every incident here: **instructions decay, enf
 - Here to steal mechanisms: [`patterns/`](patterns/) — sanitized, runnable hook skeletons, each with its own failure modes documented.
 - Skeptical of the whole thing: [META.md](META.md) — how this was reconstructed, the numbers policy, and what's deliberately not here.
 
-## The postmortems (59)
+## The postmortems (64)
 
 One incident per file: what broke, how it was detected, root cause, blast radius, the fix, and — the field almost nobody publishes — **whether the resulting guard has fired since.**
 
@@ -48,6 +48,8 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [054](postmortems/054-nothing-checked-whether-the-controls-were-still-alive.md) | Three governance controls measured in one day: one never ran, one never blocked, one was ignored 857 times |
 | [055](postmortems/055-the-audit-log-could-not-be-counted.md) | The log we grade guards with could not be counted — and a recommendation had already shipped off the bad numbers |
 | [059](postmortems/059-the-exemption-was-inherited-by-the-whole-command.md) | A safety hook exempted any command containing a git commit — so "commit; place an order" skipped it |
+| [060](postmortems/060-we-measured-which-destructive-actions-our-hooks-actually-block.md) | We probed 26 consequential actions against our own hooks — 20 were not refused |
+| [061](postmortems/061-the-guard-read-the-words-not-the-effect.md) | The destructive guard scanned for scary words: a silent truncation passed, a report was blocked |
 
 ### Concurrency (7–12 sessions, one repo)
 
@@ -62,6 +64,7 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [025](postmortems/025-sessions-erased-each-others-hook-registrations.md) | Parallel sessions overwrote each other's hook registrations — twice in one day |
 | [026](postmortems/026-the-files-deleted-at-midnight.md) | Files deleted mid-session by an unknown actor, twice — published unsolved |
 | [056](postmortems/056-three-sessions-ran-for-days-in-the-wrong-lane.md) | One shared marker let every concurrent session re-stamp everyone's lane — three sessions ran days in the wrong context |
+| [063](postmortems/063-the-claim-was-a-scope-declaration-not-a-lock.md) | Three sessions held the shared rules file six hours each — the claim was never a lock |
 
 ### Silent failure
 
@@ -83,6 +86,8 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [053](postmortems/053-the-approval-landed-in-a-copy-the-guard-never-read.md) | The approval landed in a copy nothing reads — the guard kept demanding what the agent had just done |
 | [057](postmortems/057-the-isolated-worktree-was-isolated-from-the-fixes-too.md) | The worktree session was isolated from the fixes too: a phantom empty database, pre-fix hooks, two staging areas |
 | [058](postmortems/058-windows-refused-the-nightly-jobs-and-did-not-count-them-as-missed.md) | Windows refused 11 nightly agent jobs, including the backup, and recorded zero missed runs |
+| [062](postmortems/062-the-staging-area-reported-live-files-as-deleted.md) | The repository index listed 528 live files as deleted, and grew every night |
+| [064](postmortems/064-http-200-for-a-command-that-failed.md) | The relay answered HTTP 200 and put the failure in the body — the deploy wrote nothing |
 
 ### Epistemics: when the agent's beliefs go wrong
 
