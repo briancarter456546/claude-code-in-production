@@ -13,7 +13,7 @@ All droplet access from agents and hooks goes through a single local HTTP relay:
 Enforcement, because a convention without enforcement is a wish:
 
 - Raw `ssh` from hooks is banned by convention and code review; `scp` to the droplet from agent sessions is **blocked by a PreToolUse guard** (each scp is a fresh SSH connection — the same failure mode at lower volume).
-- If the relay is down, hooks return empty data and degrade gracefully. There is deliberately **no fallback to raw SSH** — a fallback would resurrect the exact flood the relay exists to prevent, precisely when things are already going wrong.
+- If the relay is down, hooks that read *informational* state return empty data and degrade gracefully. **Amended 2026-09-27:** a hook whose relay call is a *lock acquisition* fails closed instead — "I could not determine whether another session holds this" is not a safe basis for proceeding. That exception, and the cost it turned out to carry, are measured in [PM-067](../postmortems/067-the-lock-for-local-git-needed-a-network-round-trip.md). There is deliberately **no fallback to raw SSH** — a fallback would resurrect the exact flood the relay exists to prevent, precisely when things are already going wrong.
 - Git-tracked files deploy via commit + push + a scheduled pull on the droplet, not via file copy.
 
 ## Alternatives considered

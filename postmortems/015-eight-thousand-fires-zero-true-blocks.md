@@ -2,7 +2,7 @@
 
 **Keywords:** guard hook effectiveness, gate audit, false positive rate hooks, AI agent guardrails cost, hook latency, net-negative guards, alarm fatigue automation, kill list
 
-**Incident date:** audit 2026-07 (task #1794) · **Internal refs:** #1794 gate-audit kill list; #1594; runtime-history classifier · **Status:** both gates rebuilt on measured signals; audit is now a standing practice
+**Incident date:** audit 2026-07 (task #1794) · **Internal refs:** #1794 gate-audit kill list; #1594; runtime-history classifier · **Status:** both gates rebuilt on measured signals; audit is now a standing practice — **see the 2026-09-27 amendment at the foot of this file: the rebuilt speed gate's fire volume and its runtime measurement did not hold up on re-audit**
 
 ---
 
@@ -43,3 +43,28 @@ The *audit* has — it's the guard now. The rebuilt gates fire rarely and adviso
 3. **Static shape is a terrible proxy for runtime cost.** Measured history beats clever heuristics; if you have no measurement, instrument first and guard second.
 4. **Per-unit checks can't see aggregate problems.** Twelve sessions each under their own limit will still saturate the box. Guard the resource, not the command.
 5. **"A guess never blocks."** Advisory-by-default for heuristic signals; blocking is earned by measurement.
+
+---
+
+## Amendment, 2026-09-27: "fire rarely and advisorily" was wrong, and the measurement was mis-paired
+
+The "Has the guard fired since?" section above says the rebuilt gates "fire rarely
+and advisorily." Measured against 74 days of the current audit log, the rebuilt
+speed gate fired **17,750 times over 73 days — a median of 138 a day — and blocked
+zero times.** That is 2.6x the fire volume of the gate this audit condemned, so
+"rarely" is wrong; "advisorily" is right.
+
+Worse for the thesis of this postmortem: the measured signal the rebuild was
+justified by is mis-attributed under concurrency. The post-run recorder pairs a
+finished command with **the newest start marker on disk** rather than its own, so on
+a host running 7-12 concurrent sessions the wrong duration lands against the wrong
+script — including a 9.7-hour record against a mailer that runs in seconds. The one
+hash whose median ever crossed the 10-minute block line is almost certainly one of those
+artifacts,
+so the gate's single block path has been armed exactly once, by a wrong number.
+
+Full follow-up, with the store's distribution and the pairing code:
+[PM-068](068-the-runtime-gate-paired-the-wrong-runs.md). The transferable
+correction: replacing a heuristic with a measurement is only half a fix — the
+measurement pipeline needs its own audit, and **a guard is not permanently redeemed
+by the audit that fixed it.**

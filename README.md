@@ -4,7 +4,7 @@
 
 This repo is the reconstructed incident log of [IronFrame](https://github.com/briancarter456546), a reliability layer built around Claude Code by one operator (Brian Carter) running a real business on it: systematic trading research, content pipelines, and multi-machine automation. Five months. 1,258+ commits. 148 enforcement hooks. A Windows PC, a Mac Mini compute worker, and a cloud droplet, coordinated by AI agents around the clock — with real money exposed to the results.
 
-Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **59 postmortems, 18 architecture decision records, 13 reusable hook patterns**, the era narrative connecting them — and, as of PM-046, the agent's own essay on why enforcement is the only memory it gets.
+Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **68 postmortems, 18 architecture decision records, 14 reusable hook patterns**, the era narrative connecting them — and, as of PM-046, the agent's own essay on why enforcement is the only memory it gets.
 
 ## Why hooks instead of prompts
 
@@ -17,7 +17,7 @@ The core finding, repeated across every incident here: **instructions decay, enf
 - Here to steal mechanisms: [`patterns/`](patterns/) — sanitized, runnable hook skeletons, each with its own failure modes documented.
 - Skeptical of the whole thing: [META.md](META.md) — how this was reconstructed, the numbers policy, and what's deliberately not here.
 
-## The postmortems (64)
+## The postmortems (68)
 
 One incident per file: what broke, how it was detected, root cause, blast radius, the fix, and — the field almost nobody publishes — **whether the resulting guard has fired since.**
 
@@ -50,6 +50,9 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [059](postmortems/059-the-exemption-was-inherited-by-the-whole-command.md) | A safety hook exempted any command containing a git commit — so "commit; place an order" skipped it |
 | [060](postmortems/060-we-measured-which-destructive-actions-our-hooks-actually-block.md) | We probed 26 consequential actions against our own hooks — 20 were not refused |
 | [061](postmortems/061-the-guard-read-the-words-not-the-effect.md) | The destructive guard scanned for scary words: a silent truncation passed, a report was blocked |
+| [065](postmortems/065-the-check-we-shadowed-was-the-one-that-mattered.md) | The check we put in shadow mode suppressed 211 reports of the exact defect the human then complained about by hand — and the mode was a gradient, not a switch |
+| [066](postmortems/066-the-shadow-gate-that-cannot-graduate.md) | 26 days in shadow mode, 1,094 would-blocks, and half its passing condition has never once been recorded |
+| [068](postmortems/068-the-runtime-gate-paired-the-wrong-runs.md) | We rebuilt the speed gate on measured runtime — the recorder paired each finish with the newest start on disk |
 
 ### Concurrency (7–12 sessions, one repo)
 
@@ -65,6 +68,7 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [026](postmortems/026-the-files-deleted-at-midnight.md) | Files deleted mid-session by an unknown actor, twice — published unsolved |
 | [056](postmortems/056-three-sessions-ran-for-days-in-the-wrong-lane.md) | One shared marker let every concurrent session re-stamp everyone's lane — three sessions ran days in the wrong context |
 | [063](postmortems/063-the-claim-was-a-scope-declaration-not-a-lock.md) | Three sessions held the shared rules file six hours each — the claim was never a lock |
+| [067](postmortems/067-the-lock-for-local-git-needed-a-network-round-trip.md) | The mutex protecting local git needed a network round trip: 749 timeouts in one week, 29 refusals for an unreachable lock |
 
 ### Silent failure
 
@@ -139,7 +143,7 @@ The postmortems are the incidents; the ADRs are the load-bearing choices the inc
 | [017](adr/017-bypass-rate-is-a-bug-report-on-the-guard.md) | A guard's bypass rate is treated as a bug report on the guard |
 | [018](adr/018-tiered-adversarial-review-with-budget-caps.md) | External adversarial review is tiered and budget-capped — caps limit spend, never evidence |
 
-## The pattern catalog: 13 reusable mechanisms
+## The pattern catalog: 14 reusable mechanisms
 
 Each with a sanitized runnable skeleton and — the part most pattern write-ups skip — **the pattern's own failure modes**, field-tested.
 
@@ -158,6 +162,7 @@ Each with a sanitized runnable skeleton and — the part most pattern write-ups 
 | [guard-dispatch-consolidation](patterns/guard-dispatch-consolidation.md) | One process per event, not one per guard |
 | [quoted-prose-stripping](patterns/quoted-prose-stripping.md) | Content guards must not judge mentions as uses |
 | [bypass-rate-auditing](patterns/bypass-rate-auditing.md) | Every escape hatch is a sensor |
+| [shadow-mode-gates](patterns/shadow-mode-gates.md) | Ship a gate log-only first — and the three ways that becomes permanent |
 
 ## The chronicle: how it evolved
 
