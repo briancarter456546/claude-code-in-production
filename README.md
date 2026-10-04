@@ -4,7 +4,7 @@
 
 This repo is the reconstructed incident log of [IronFrame](https://github.com/briancarter456546), a reliability layer built around Claude Code by one operator (Brian Carter) running a real business on it: systematic trading research, content pipelines, and multi-machine automation. Five months. 1,258+ commits. 148 enforcement hooks. A Windows PC, a Mac Mini compute worker, and a cloud droplet, coordinated by AI agents around the clock — with real money exposed to the results.
 
-Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **68 postmortems, 18 architecture decision records, 14 reusable hook patterns**, the era narrative connecting them — and, as of PM-046, the agent's own essay on why enforcement is the only memory it gets.
+Most writing about AI agent reliability is vendor documentation or toy demos. Almost nobody publishes the failure record: what the agent silently got wrong, what it cost, and what mechanism — not what prompt — prevented the recurrence. That record is this repo: **72 postmortems, 18 architecture decision records, 14 reusable hook patterns**, the era narrative connecting them — and, as of PM-046, the agent's own essay on why enforcement is the only memory it gets.
 
 ## Why hooks instead of prompts
 
@@ -17,7 +17,7 @@ The core finding, repeated across every incident here: **instructions decay, enf
 - Here to steal mechanisms: [`patterns/`](patterns/) — sanitized, runnable hook skeletons, each with its own failure modes documented.
 - Skeptical of the whole thing: [META.md](META.md) — how this was reconstructed, the numbers policy, and what's deliberately not here.
 
-## The postmortems (68)
+## The postmortems (72)
 
 One incident per file: what broke, how it was detected, root cause, blast radius, the fix, and — the field almost nobody publishes — **whether the resulting guard has fired since.**
 
@@ -53,6 +53,7 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [065](postmortems/065-the-check-we-shadowed-was-the-one-that-mattered.md) | The check we put in shadow mode suppressed 211 reports of the exact defect the human then complained about by hand — and the mode was a gradient, not a switch |
 | [066](postmortems/066-the-shadow-gate-that-cannot-graduate.md) | 26 days in shadow mode, 1,094 would-blocks, and half its passing condition has never once been recorded |
 | [068](postmortems/068-the-runtime-gate-paired-the-wrong-runs.md) | We rebuilt the speed gate on measured runtime — the recorder paired each finish with the newest start on disk |
+| [070](postmortems/070-the-rule-shipped-the-enforcement-was-unreachable.md) | The rule shipped; its enforcement was unreachable for four days — and 94 of the 95 rows in the guard's log are its own test suite |
 
 ### Concurrency (7–12 sessions, one repo)
 
@@ -69,6 +70,8 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [056](postmortems/056-three-sessions-ran-for-days-in-the-wrong-lane.md) | One shared marker let every concurrent session re-stamp everyone's lane — three sessions ran days in the wrong context |
 | [063](postmortems/063-the-claim-was-a-scope-declaration-not-a-lock.md) | Three sessions held the shared rules file six hours each — the claim was never a lock |
 | [067](postmortems/067-the-lock-for-local-git-needed-a-network-round-trip.md) | The mutex protecting local git needed a network round trip: 749 timeouts in one week, 29 refusals for an unreachable lock |
+| [071](postmortems/071-ownership-followed-the-tool-not-the-writer.md) | File ownership followed the tool, not the writer — the journal could not name a write target in 94% of shell commands |
+| [072](postmortems/072-the-gate-handed-a-session-another-sessions-claim.md) | The claim gate could hand a session a stranger's claim from a shared cache — and the bug report had its TTL wrong by 3,600× |
 
 ### Silent failure
 
@@ -92,6 +95,7 @@ One incident per file: what broke, how it was detected, root cause, blast radius
 | [058](postmortems/058-windows-refused-the-nightly-jobs-and-did-not-count-them-as-missed.md) | Windows refused 11 nightly agent jobs, including the backup, and recorded zero missed runs |
 | [062](postmortems/062-the-staging-area-reported-live-files-as-deleted.md) | The repository index listed 528 live files as deleted, and grew every night |
 | [064](postmortems/064-http-200-for-a-command-that-failed.md) | The relay answered HTTP 200 and put the failure in the body — the deploy wrote nothing |
+| [069](postmortems/069-the-secret-scanner-reported-clean-on-a-diff-it-never-read.md) | The pre-commit secret scanner reported clean on a diff it never read — the trigger was one curly quote |
 
 ### Epistemics: when the agent's beliefs go wrong
 
