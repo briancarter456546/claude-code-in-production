@@ -85,9 +85,9 @@ No corruption has been attributed to it. That is a statement about what the log 
 
 ## Has the guard fired since?
 
-The gate runs on every `Write`/`Edit`/`MultiEdit`/`NotebookEdit`. Over the measured week it logged **2,418 invocations**: 1,310 allowed on `has_checkout`, 1,059 allowed on `exempt_path`, **47 blocked** on `no_checkout`, and 2 allowed because the guard itself was degraded.
+The gate runs on every `Write`/`Edit`/`MultiEdit`/`NotebookEdit`. Over the measured week it logged **2,422 invocations**: 1,313 allowed on `has_checkout`, 1,059 allowed on `exempt_path`, **48 blocked** on `no_checkout`, and 2 allowed because the guard itself was degraded.
 
-The relevant row is the first one. **1,310 writes were allowed on the grounds that the session holds a claim, and not one of those rows records which claim** — so the log cannot separate the earned allows from the inherited ones. That is why a code read found this defect and 2,418 rows a week did not. The 2 `guard.degraded` allows are a second, smaller instance of the same blindness: the gate recorded that it had failed open without recording what it failed open *on*.
+The relevant row is the first one. **1,313 writes were allowed on the grounds that the session holds a claim, and not one of those rows records which claim** — so the log cannot separate the earned allows from the inherited ones. That is why a code read found this defect and 2,422 rows a week did not. The 2 `guard.degraded` allows are a second, smaller instance of the same blindness: the gate recorded that it had failed open without recording what it failed open *on*.
 
 ## Lessons for agent-driven development
 

@@ -28,24 +28,24 @@ The workaround the refused session chose is the cleanest statement of the defect
 
 Ownership is inferred from tool-call metadata, which is reliable for `Edit`/`Write` (the harness states the path) and inferential for `Bash` (the path must be recovered by parsing a shell command). Shell is not parseable at that fidelity, and the journal's own classifier says so — honestly and loudly, in a field nobody was reading.
 
-Measured over the 7-day window 2026-09-27 → 2026-10-04, the Bash-side journal ran **9,477 times**:
+Measured over the 7-day window 2026-09-27 → 2026-10-04, the Bash-side journal ran **9,631 times**:
 
 | classification | count |
 |---|---|
-| `opaque:unsupported_redirect` | 2,847 |
-| `no_explicit_write_target` | 1,787 |
-| `opaque:unproven_segment_execution` | 1,327 |
-| `opaque:unparseable_construct` | 1,153 |
-| `opaque:newline_list` | 1,012 |
-| `opaque:hash_ambiguous_comment_or_word` | 555 |
-| `opaque:tokenizer_failed` | 185 |
+| `opaque:unsupported_redirect` | 2,880 |
+| `no_explicit_write_target` | 1,801 |
+| `opaque:unproven_segment_execution` | 1,372 |
+| `opaque:unparseable_construct` | 1,187 |
+| `opaque:newline_list` | 1,025 |
+| `opaque:hash_ambiguous_comment_or_word` | 564 |
+| `opaque:tokenizer_failed` | 187 |
 | `opaque:conditional_control_flow` | 60 |
 | `opaque:unsupported_punctuation_run` | 3 |
-| **journaled** | **519** |
+| **journaled** | **523** |
 | **parsed** | **18** |
 | baseline_established / degraded | 7 / 4 |
 
-**8,929 of 9,477 — 94.2% — ended with the journal unable to say what the command wrote. It identified a write target in 5.7% of shell commands.**
+**9,079 of 9,631 — 94.3% — ended with the journal unable to say what the command wrote. It identified a write target in 5.6% of shell commands.**
 
 So the authority behind an ownership decision is, for shell work, almost entirely absent — and absence of a record does not read as "unknown" downstream. It reads as "not yours," or it leaves the last `Edit`-tool toucher as the only name on file.
 
@@ -53,9 +53,9 @@ The deeper cause is a mismatch between what the harness can observe and what the
 
 ## Blast radius
 
-In the same 7-day window, the consuming guard ran **777** times: **300 blocks**, 328 clean allows, **69 bypasses**, 73 skipped for nothing staged, 7 skipped on an empty-journal bootstrap.
+In the same 7-day window, the consuming guard ran **785** times: **303 blocks**, 329 clean allows, **70 bypasses**, 76 skipped for nothing staged, 7 skipped on an empty-journal bootstrap.
 
-Those 300 refusals were issued against evidence that could name a shell writer 5.7% of the time. We are not claiming all 300 are false — a single sampled false positive is documented in #2979 and a second in its follow-up, and the rest are unadjudicated. That *is* the blast radius: **the population is unjudged, and the guard's own bypass rate is the only signal of friction anyone has been reading.** 69 overrides against 300 refusals is an 18.7% override rate on the refusal class, which under [ADR-017](../adr/017-bypass-rate-is-a-bug-report-on-the-guard.md) is a bug report filed against the guard, not against the sessions.
+Those 303 refusals were issued against evidence that could name a shell writer 5.6% of the time. We are not claiming all 300 are false — a single sampled false positive is documented in #2979 and a second in its follow-up, and the rest are unadjudicated. That *is* the blast radius: **the population is unjudged, and the guard's own bypass rate is the only signal of friction anyone has been reading.** 70 overrides against 303 refusals is an 18.8% override rate on the refusal class, which under [ADR-017](../adr/017-bypass-rate-is-a-bug-report-on-the-guard.md) is a bug report filed against the guard, not against the sessions.
 
 The harder cost is that the workaround is *cheaper than the correction*. Re-typing output through the `Edit` tool takes seconds and always works. A session that learns that trick stops hitting the guard, and the rate of false refusals drops — while the attribution data gets worse, because now the journal records a laundered write.
 
@@ -73,7 +73,7 @@ What the record does establish, for whoever does fix it:
 
 ## Has the guard fired since?
 
-The guard fires constantly — 777 times in the measured week — and that is the problem rather than the reassurance. The relevant question for this postmortem is not whether it fires but **whether any of its 300 refusals have been judged correct or incorrect**, and the answer is that two have been examined and both were wrong. That is the same open hole named in [PM-066](066-the-shadow-gate-that-cannot-graduate.md): rows accumulate, nobody adjudicates them, and volume gets reported as if it were evidence.
+The guard fires constantly — 785 times in the measured week — and that is the problem rather than the reassurance. The relevant question for this postmortem is not whether it fires but **whether any of its 303 refusals have been judged correct or incorrect**, and the answer is that two have been examined and both were wrong. That is the same open hole named in [PM-066](066-the-shadow-gate-that-cannot-graduate.md): rows accumulate, nobody adjudicates them, and volume gets reported as if it were evidence.
 
 ## Lessons for agent-driven development
 
